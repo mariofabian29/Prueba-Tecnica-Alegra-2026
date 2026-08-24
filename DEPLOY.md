@@ -10,6 +10,11 @@ panel de Vercel, así que no hace falta una segunda cuenta.
 
 Tiempo estimado: **unos 10 minutos**.
 
+> El flujo de despliegue está verificado de extremo a extremo contra un
+> PostgreSQL real: genera el esquema, crea las tablas, siembra la demo,
+> compila, y la aplicación pasa sus 70 comprobaciones funcionando sobre
+> Postgres. Lo único que hace falta es la cadena de conexión.
+
 ---
 
 ## 1. Conectar el repositorio
