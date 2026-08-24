@@ -12,7 +12,8 @@
     "seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force && npm run seed",
     "db:studio": "prisma studio",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "tsx tests/photos.test.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

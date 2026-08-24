@@ -31,6 +31,9 @@ model Trip {
   endDate     DateTime
   notes       String?
   coverEmoji  String   @default("🌍")
+  // Foto real del destino resuelta desde Wikimedia. Se guarda una vez y se
+  // reutiliza; si no se consigue, la interfaz usa su ilustración generada.
+  photoUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

@@ -49,6 +49,7 @@ npm start
 | `npm run db:reset` | Borra la base de datos, la vuelve a crear y la puebla |
 | `npm run db:studio` | Abre Prisma Studio para inspeccionar los datos |
 | `npm run typecheck` | Comprueba los tipos con TypeScript |
+| `npm test` | Ejecuta las pruebas de la selección de fotos de destino |
 
 ---
 
@@ -146,6 +147,25 @@ También responde preguntas sobre el presupuesto (*"¿cuánto me queda?"*,
 extraen monto, categoría y fecha, y se muestra una tarjeta editable para
 confirmar antes de cargar el gasto.
 
+### Fotos de los destinos
+Cada viaje muestra una foto real de su ciudad, tanto en la tarjeta de **Mis
+viajes** como en el banner del viaje. Se resuelve contra la API pública de
+Wikimedia —sin clave ni registro— y la dirección se guarda en el viaje para no
+repetir la consulta.
+
+Si no hay red o el destino no tiene una foto adecuada, se usa una ilustración
+generada a partir del nombre del destino, de modo que nunca queda un hueco en
+blanco. El filtro descarta escudos, banderas, logotipos e imágenes demasiado
+pequeñas para un banner; esa lógica está cubierta por `npm test`.
+
+### Navegación
+La barra lateral incluye un desplegable en **Presupuesto** con los viajes
+vigentes, para saltar entre ellos sin volver al listado. Se abre solo al entrar
+en un viaje y resalta el que estás viendo.
+
+El asistente de IA se abre desde su botón y se cierra con la X o con «Volver al
+viaje», que devuelven al viaje desde el que se abrió.
+
 ### Visualización en tiempo real
 Cada gasto que se registra —por cualquiera de las dos vías— refresca al
 instante las gráficas y el panel de IA, sin recargar la página:
@@ -198,6 +218,9 @@ prisma/
   migrations/            Historial de migraciones
   seed.ts                Datos de demostración
 
+tests/
+  photos.test.ts         Selección de la foto de destino
+
 scripts/
   setup.mjs              Preparación del entorno en un paso
 
@@ -229,6 +252,8 @@ src/
     trips.ts             Acceso a datos de viajes
     validation.ts        Esquemas de entrada
     format.ts            Moneda, fechas y utilidades
+    photos.ts            Foto del destino desde Wikimedia
+    navigation.ts        Navegación con respaldo ante transiciones perdidas
 
   hooks/useTrip.ts       Estado del dashboard y revalidación
   middleware.ts          Protección de rutas
@@ -255,6 +280,7 @@ a quien lo pide.
 | `GET` `POST` `DELETE` | `/api/trips/{id}/chat` | Historial / mensaje / limpiar |
 | `POST` | `/api/trips/{id}/chat/confirm` | Confirmar el borrador de un recibo |
 | `POST` | `/api/trips/{id}/receipt` | Subir foto de factura y extraer sus datos |
+| `POST` | `/api/trips/{id}/photo` | Resolver y guardar la foto del destino |
 
 ---
 

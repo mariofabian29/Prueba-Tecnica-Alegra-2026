@@ -1,4 +1,4 @@
-import { destinationArt } from "@/lib/destination-art";
+import { DestinationImage } from "@/components/DestinationImage";
 
 /**
  * Vitrina de viajes pasados incluida en el diseño.
@@ -22,11 +22,10 @@ export function PastTripsShowcase() {
       <ul aria-disabled="true" className="grid select-none gap-6 opacity-55 grayscale sm:grid-cols-2 lg:grid-cols-3">
         {PAST_TRIPS.map((trip) => (
           <li key={trip.destination} className="cursor-default">
-            <div
-              className="h-[175px] rounded-[14px] bg-cream-300 bg-cover bg-center"
-              style={{ backgroundImage: destinationArt(trip.destination).dataUri }}
-              role="img"
-              aria-label={`Ilustración de ${trip.destination}`}
+            <DestinationImage
+              destination={trip.destination}
+              resolve={false}
+              className="h-[175px] rounded-[14px]"
             />
             <p className="mt-3 text-[14px] font-bold text-ink-500">Viaje a {trip.destination}</p>
             <p className="mt-0.5 text-[13.5px] text-ink-400">{trip.range}</p>

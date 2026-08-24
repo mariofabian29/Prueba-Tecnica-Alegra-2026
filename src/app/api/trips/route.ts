@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { tripSchema } from "@/lib/validation";
 import { handle, ok } from "@/lib/api";
 import { listActiveTrips, parseDay } from "@/lib/trips";
+import { resolveDestinationPhoto } from "@/lib/photos";
 
 export async function GET() {
   return handle(async () => {
@@ -20,11 +21,16 @@ export async function POST(request: Request) {
     const raw = (await request.json()) as Record<string, unknown>;
     const body = tripSchema.parse({ ...raw, ...defaultDates(raw) });
 
+    // Se intenta una foto real del destino; si no se consigue, la interfaz usa
+    // su ilustración generada y se puede reintentar más tarde.
+    const photoUrl = await resolveDestinationPhoto(body.destination, body.country);
+
     const trip = await prisma.trip.create({
       data: {
         userId: user.id,
         destination: body.destination,
         country: body.country || null,
+        photoUrl,
         budget: body.budget,
         currency: body.currency,
         startDate: parseDay(body.startDate),
