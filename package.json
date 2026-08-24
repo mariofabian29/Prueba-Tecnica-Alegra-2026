@@ -2,6 +2,13 @@
   "name": "tripflow",
   "version": "1.0.0",
   "private": true,
+  "allowScripts": {
+    "prisma": true,
+    "@prisma/client": true,
+    "@prisma/engines": true,
+    "esbuild": true,
+    "sharp": true
+  },
   "description": "Plataforma de control de gastos de viaje con panel de IA y registro por chatbot",
   "scripts": {
     "setup": "node scripts/setup.mjs",
@@ -14,10 +21,7 @@
     "db:studio": "prisma studio",
     "typecheck": "tsc --noEmit",
     "test": "tsx tests/photos.test.ts",
-    "build:deploy": "node scripts/prepare-postgres.mjs && prisma generate --schema prisma/schema.postgres.prisma && prisma db push --schema prisma/schema.postgres.prisma --skip-generate && tsx prisma/seed.ts && next build"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "build:deploy": "node scripts/prepare-postgres.mjs && prisma generate --schema prisma/schema.postgres.prisma && node scripts/db-deploy.mjs && next build"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",

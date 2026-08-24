@@ -11,6 +11,17 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
+// Se comprueba aqui, en el primer paso del despliegue, porque Prisma tambien
+// necesita DATABASE_URL para generar el cliente: sin ella falla con un error
+// poco descriptivo antes de llegar a tocar la base de datos.
+if (!process.env.DATABASE_URL) {
+  console.error("\n✖ Falta la variable DATABASE_URL.\n");
+  console.error("  La base de datos todavia no esta conectada al proyecto.");
+  console.error("  Sigue el paso 2 de DEPLOY.md (crear la base y conectarla),");
+  console.error("  o anade DATABASE_URL a mano en Settings -> Environment Variables.\n");
+  process.exit(1);
+}
+
 const root = process.cwd();
 const source = path.join(root, "prisma", "schema.prisma");
 const target = path.join(root, "prisma", "schema.postgres.prisma");
