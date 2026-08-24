@@ -1,25 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import { ArrowLeft, X } from "lucide-react";
 import { CATEGORY_META, CATEGORY_PICKER_ORDER, type Category } from "@/lib/categories";
 
-/**
- * Segundo paso del popup: elegir un lugar del plan de viaje o una categoría.
- */
+/** Segundo paso del popup: elegir la categoría del gasto. */
 export function CategoryPicker({
-  place,
+  selected,
   onBack,
   onClose,
   onSelect,
 }: {
-  place: string;
+  selected: Category | null;
   onBack: () => void;
   onClose: () => void;
-  onSelect: (category: Category, place: string) => void;
+  onSelect: (category: Category) => void;
 }) {
-  const [value, setValue] = useState(place);
-
   return (
     <div>
       <header className="relative mb-6 flex items-center justify-center">
@@ -44,31 +39,21 @@ export function CategoryPicker({
         </button>
       </header>
 
-      <label htmlFor="place" className="mb-2 block text-[13px] font-semibold text-ink-500">
-        Selecciona de tu plan de viaje
-      </label>
-      <input
-        id="place"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="Parque Santander"
-        maxLength={120}
-        className="input-base"
-      />
-
-      <hr className="my-5 border-cream-300" />
-
-      <p className="mb-3 text-[13px] font-semibold text-ink-500">O selecciona una categoría</p>
-
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {CATEGORY_PICKER_ORDER.map((category) => {
           const meta = CATEGORY_META[category];
+          const isSelected = category === selected;
           return (
             <button
               key={category}
               type="button"
-              onClick={() => onSelect(category, value.trim())}
-              className="flex flex-col items-center gap-2 rounded-[14px] bg-cream-200 px-2 py-5 transition-all hover:bg-brand-50 hover:ring-2 hover:ring-brand-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              onClick={() => onSelect(category)}
+              aria-pressed={isSelected}
+              className={`flex flex-col items-center gap-2 rounded-[14px] px-2 py-5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 ${
+                isSelected
+                  ? "bg-brand-50 ring-2 ring-brand-400"
+                  : "bg-cream-200 hover:bg-brand-50 hover:ring-2 hover:ring-brand-300"
+              }`}
             >
               <span className="text-[22px]" aria-hidden>
                 {meta.emoji}

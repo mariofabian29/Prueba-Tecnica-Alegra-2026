@@ -36,7 +36,7 @@ export function AddExpenseModal({
   const [step, setStep] = useState<Step>("form");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState<Category | null>(null);
-  const [place, setPlace] = useState("");
+  const [description, setDescription] = useState("");
   const [paidBy, setPaidBy] = useState(people[0] ?? "Yo");
   const [splitMode, setSplitMode] = useState<"NONE" | "EQUAL">("NONE");
   const [date, setDate] = useState("");
@@ -50,7 +50,7 @@ export function AddExpenseModal({
     setStep("form");
     setAmount("");
     setCategory(null);
-    setPlace("");
+    setDescription("");
     setPaidBy(people[0] ?? "Yo");
     setSplitMode("NONE");
     setDate("");
@@ -83,7 +83,7 @@ export function AddExpenseModal({
       if (data.extracted && data.draft) {
         if (!amount) setAmount(String(data.draft.amount ?? ""));
         if (!category) setCategory(data.draft.category as Category);
-        if (!place) setPlace(data.draft.description ?? "");
+        if (!description) setDescription(data.draft.description ?? "");
         if (!date) setDate(data.draft.date ?? "");
       }
     } catch {
@@ -115,8 +115,8 @@ export function AddExpenseModal({
         body: JSON.stringify({
           amount: value,
           category,
-          description: place || CATEGORY_META[category].label,
-          place,
+          description: description.trim() || CATEGORY_META[category].label,
+          place: description.trim(),
           date: date || toDateInput(new Date()),
           paidBy,
           splitMode,
@@ -144,12 +144,11 @@ export function AddExpenseModal({
     <Modal open={open} onClose={close} labelledBy="expense-modal-title">
       {step === "category" ? (
         <CategoryPicker
-          place={place}
+          selected={category}
           onBack={() => setStep("form")}
           onClose={close}
-          onSelect={(selected, selectedPlace) => {
+          onSelect={(selected) => {
             setCategory(selected);
-            setPlace(selectedPlace);
             setStep("form");
           }}
         />
@@ -174,6 +173,7 @@ export function AddExpenseModal({
           <div className="flex items-center gap-2 rounded-[14px] bg-cream-200 px-4 focus-within:ring-2 focus-within:ring-brand-300">
             <span className="text-[15px] font-medium text-ink-400">{currency}</span>
             <input
+              data-autofocus
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               inputMode="decimal"
@@ -189,11 +189,21 @@ export function AddExpenseModal({
             className="mt-3 flex w-full items-center justify-between rounded-[14px] bg-cream-200 px-4 py-3.5 text-left text-[15px] transition-colors hover:bg-cream-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
           >
             <span className={category ? "font-medium text-ink-900" : "text-ink-400"}>
-              {category ? `${CATEGORY_META[category].emoji} ${CATEGORY_META[category].label}` : "Categoría de gasto"}
-              {category && place && <span className="ml-1.5 font-normal text-ink-500">· {place}</span>}
+              {category
+                ? `${CATEGORY_META[category].emoji} ${CATEGORY_META[category].label}`
+                : "Categoría de gasto"}
             </span>
             <ChevronDown className="h-4 w-4 shrink-0 text-ink-400" aria-hidden />
           </button>
+
+          <input
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Descripción (opcional)"
+            aria-label="Descripción del gasto"
+            maxLength={120}
+            className="input-base mt-3"
+          />
 
           <dl className="mt-5 space-y-3.5">
             <SelectRow

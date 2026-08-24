@@ -118,7 +118,7 @@ export const CATEGORY_META: Record<Category, CategoryMeta> = {
     label: "Compras",
     emoji: "🛍️",
     color: "#d6247a",
-    bucket: "TRANSPORT_OTHER",
+    bucket: "ACTIVITIES",
     keywords: [
       "compra", "compre", "compré", "souvenir", "recuerdo", "ropa", "zapatos", "regalo",
       "regalos", "tienda", "mall", "artesania", "artesanía", "shopping",
