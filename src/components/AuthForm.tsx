@@ -58,10 +58,17 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const searchParams = useSearchParams();
   const isRegister = mode === "register";
 
-  const [values, setValues] = useState({ name: "", email: "", password: "" });
+  // Al llegar desde el login sin cuenta, el correo ya viene escrito.
+  const [values, setValues] = useState(() => ({
+    name: "",
+    email: isRegister ? (searchParams.get("email") ?? "") : "",
+    password: "",
+  }));
   const [showPassword, setShowPassword] = useState(false);
   const [fields, setFields] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
+  /** "no_account" cuando el correo no está registrado: cambia la ayuda que se ofrece. */
+  const [errorReason, setErrorReason] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
 
@@ -69,6 +76,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
     setValues((v) => ({ ...v, [key]: e.target.value }));
     // Al corregir un campo, su error deja de mostrarse.
     setFields((f) => (f[key] ? { ...f, [key]: "" } : f));
+    if (error) {
+      setError(null);
+      setErrorReason(null);
+    }
   };
 
   function validateLocally(): boolean {
@@ -93,6 +104,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
+    setErrorReason(null);
     setNotice(null);
 
     if (!validateLocally()) return;
@@ -114,6 +126,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
       if (!response.ok) {
         setError(data.error ?? "No pudimos completar la operación");
+        setErrorReason(typeof data.reason === "string" ? data.reason : null);
         setFields(data.fields ?? {});
         setStatus("idle");
         return;
@@ -186,7 +199,23 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
       {/* -------------------------------- Formulario --------------------------- */}
       <form onSubmit={onSubmit} noValidate className="space-y-3">
-        {error && <Alert tone="error">{error}</Alert>}
+        {error && (
+          <Alert tone="error">
+            {error}
+            {errorReason === "no_account" && (
+              <>
+                {" "}
+                <Link
+                  href={`/registro?email=${encodeURIComponent(values.email.trim())}`}
+                  className="font-semibold underline underline-offset-2 hover:no-underline"
+                >
+                  Crea una cuenta
+                </Link>{" "}
+                con este correo, o revisa si te equivocaste al escribirlo.
+              </>
+            )}
+          </Alert>
+        )}
 
         {isRegister && (
           <Field id="name" error={fields.name}>

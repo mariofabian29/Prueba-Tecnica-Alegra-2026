@@ -8,8 +8,21 @@ export async function POST(request: Request) {
     const body = loginSchema.parse(await request.json());
 
     const user = await prisma.user.findUnique({ where: { email: body.email } });
-    if (!user || !(await verifyPassword(body.password, user.passwordHash))) {
-      return fail("Correo o contraseña incorrectos", 401);
+
+    // Se distingue una cuenta inexistente de una contraseña equivocada para que
+    // el mensaje sea accionable. Es una concesión deliberada: permite averiguar
+    // qué correos están registrados, algo aceptable en una demo pero que en
+    // producción conviene sustituir por un mensaje genérico.
+    if (!user) {
+      return fail("No encontramos ninguna cuenta con ese correo.", 404, undefined, {
+        reason: "no_account",
+      });
+    }
+
+    if (!(await verifyPassword(body.password, user.passwordHash))) {
+      return fail("La contraseña no es correcta. Vuelve a intentarlo.", 401, undefined, {
+        reason: "bad_password",
+      });
     }
 
     await createSession({ userId: user.id, email: user.email, name: user.name });
