@@ -51,23 +51,27 @@ export function SidebarContent({ userName, active, budgetHref, onAssistant, onNa
   return (
     <div className="flex h-full flex-col justify-between px-4 py-6">
       <div>
-        <button
-          type="button"
-          onClick={() => {
-            onAssistant?.();
-            onNavigate?.();
-          }}
-          disabled={!onAssistant}
-          className={cn(
-            "brand-gradient mb-8 inline-flex h-11 items-center gap-2 rounded-pill px-6 text-[14px] font-semibold text-white shadow-md shadow-brand-500/25 transition-all",
-            onAssistant ? "hover:brightness-105 active:scale-[0.98]" : "cursor-default opacity-60",
-            active === "assistant" && "ring-2 ring-brand-300 ring-offset-2 ring-offset-cream-200"
-          )}
-          title={onAssistant ? "Abrir el asistente de IA" : "Abre un viaje para usar el asistente"}
-        >
-          <Sparkles className="h-4 w-4" aria-hidden />
-          Asistente IA
-        </button>
+        {/* El asistente trabaja siempre sobre un viaje concreto: fuera de uno
+            no se muestra, para no ofrecer una acción sin destino. */}
+        {onAssistant ? (
+          <button
+            type="button"
+            onClick={() => {
+              onAssistant();
+              onNavigate?.();
+            }}
+            className={cn(
+              "brand-gradient mb-8 inline-flex h-11 items-center gap-2 rounded-pill px-6 text-[14px] font-semibold text-white shadow-md shadow-brand-500/25 transition-all hover:brightness-105 active:scale-[0.98]",
+              active === "assistant" && "ring-2 ring-brand-300 ring-offset-2 ring-offset-cream-200"
+            )}
+            title="Abrir el asistente de IA"
+          >
+            <Sparkles className="h-4 w-4" aria-hidden />
+            Asistente IA
+          </button>
+        ) : (
+          <div className="mb-8 h-11" aria-hidden />
+        )}
 
         <nav className="space-y-1">
           {items.map((item) => {

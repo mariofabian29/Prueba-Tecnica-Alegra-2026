@@ -1,29 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Plus } from "lucide-react";
 import { AppShell } from "@/components/shell/AppShell";
 import { Button } from "@/components/ui/Button";
 import { PastTripsShowcase } from "./PastTripsShowcase";
 import { ActiveTripCard, type ActiveTrip } from "./ActiveTripCard";
 
-export function TripsHome({ userName, trips }: { userName: string; trips: ActiveTrip[] }) {
-  const router = useRouter();
-  const firstTrip = trips[0];
+export function TripsHome({ userName, trips: initialTrips }: { userName: string; trips: ActiveTrip[] }) {
+  const [trips, setTrips] = useState(initialTrips);
 
   return (
-    <AppShell
-      userName={userName}
-      active="trips"
-      budgetHref={firstTrip ? `/viajes/${firstTrip.id}` : undefined}
-      onAssistant={firstTrip ? () => router.push(`/viajes/${firstTrip.id}/asistente`) : undefined}
-    >
-      <div className="px-8 py-8 sm:px-12 sm:py-10">
+    // El asistente de IA trabaja siempre sobre un viaje concreto, así que aquí
+    // no se ofrece: se activa al entrar en uno.
+    <AppShell userName={userName} active="trips">
+      <div className="px-6 py-8 sm:px-12 sm:py-10">
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <h1 className="text-[28px] font-bold tracking-tight text-ink-900">
-            Vistos recientemente y próximos
-          </h1>
+          <h1 className="text-[28px] font-bold tracking-tight text-ink-900">Mis viajes</h1>
           <Link href="/nuevo-viaje">
             <Button size="lg">
               <Plus className="h-4 w-4" aria-hidden />
@@ -43,7 +37,10 @@ export function TripsHome({ userName, trips }: { userName: string; trips: Active
           <ul className="mt-7 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {trips.map((trip) => (
               <li key={trip.id}>
-                <ActiveTripCard trip={trip} />
+                <ActiveTripCard
+                  trip={trip}
+                  onDeleted={(id) => setTrips((list) => list.filter((t) => t.id !== id))}
+                />
               </li>
             ))}
           </ul>
