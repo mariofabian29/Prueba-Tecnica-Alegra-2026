@@ -86,7 +86,12 @@ Sirve tanto si creaste la base desde Vercel como si la creaste directamente en
 
 ## 3. Variables de entorno
 
-En **Settings → Environment Variables**, añade:
+Ve a **Settings → Environment Variables** en la barra lateral del proyecto.
+
+> ⚠️ **No confundir con «Environments»**, que es otra pantalla: esa solo define
+> qué rama sigue cada entorno y no contiene ninguna variable.
+
+Añade:
 
 | Variable | Valor | Obligatoria |
 | --- | --- | --- |
