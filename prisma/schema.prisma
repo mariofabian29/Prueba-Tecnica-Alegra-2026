@@ -1,0 +1,86 @@
+// Plataforma de control de gastos de viaje
+// Motor: SQLite (cero infraestructura, listo para ejecutar en local)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  trips Trip[]
+}
+
+model Trip {
+  id          String   @id @default(cuid())
+  userId      String
+  destination String
+  country     String?
+  budget      Float
+  currency    String   @default("USD")
+  startDate   DateTime
+  endDate     DateTime
+  notes       String?
+  coverEmoji  String   @default("🌍")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companions Companion[]
+  expenses   Expense[]
+  messages   ChatMessage[]
+
+  @@index([userId, endDate])
+}
+
+model Companion {
+  id     String  @id @default(cuid())
+  tripId String
+  name   String
+  email  String?
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  tripId      String
+  amount      Float
+  currency    String   @default("USD")
+  // FOOD | LODGING | TRANSPORT | ENTERTAINMENT | SHOPPING | HEALTH | OTHER
+  category    String   @default("OTHER")
+  description String
+  date        DateTime @default(now())
+  paidBy      String   @default("Yo")
+  // MANUAL | CHATBOT
+  source      String   @default("MANUAL")
+  createdAt   DateTime @default(now())
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId, date])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  tripId    String
+  // user | assistant
+  role      String
+  content   String
+  createdAt DateTime @default(now())
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId, createdAt])
+}
