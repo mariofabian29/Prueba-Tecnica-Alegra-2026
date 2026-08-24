@@ -2,13 +2,16 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Viajero · Control de gastos de viaje",
+  title: {
+    default: "Tripflow · Controla el gasto de tu viaje con ayuda de IA",
+    template: "%s · Tripflow",
+  },
   description:
-    "Planifica el presupuesto de tus viajes, registra gastos de forma manual o por chat y recibe recomendaciones economicas en tiempo real.",
+    "Crea tu viaje, registra gastos a mano o contandoselos a la IA, y mira en tiempo real como va tu presupuesto con graficas y recomendaciones.",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#070b18",
+  themeColor: "#d6247a",
   width: "device-width",
   initialScale: 1,
 };
@@ -20,11 +23,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body className="min-h-screen bg-cream-100">{children}</body>
     </html>
   );
 }

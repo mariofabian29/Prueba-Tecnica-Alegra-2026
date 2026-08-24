@@ -21,6 +21,8 @@ export const tripSchema = z
     currency: z.enum(CURRENCIES),
     startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha de inicio invalida"),
     endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha de fin invalida"),
+    // Las fechas son opcionales en el formulario: si faltan, la API rellena una
+    // ventana por defecto de 7 dias desde hoy antes de validar.
     notes: z.string().trim().max(500).optional().or(z.literal("")),
     coverEmoji: z.string().trim().max(8).optional().or(z.literal("")),
     companions: z
@@ -43,6 +45,9 @@ export const expenseSchema = z.object({
   description: z.string().trim().min(1, "Describe el gasto").max(120),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha invalida"),
   paidBy: z.string().trim().min(1).max(60).default("Yo"),
+  splitMode: z.enum(["NONE", "EQUAL"]).default("NONE"),
+  place: z.string().trim().max(120).optional().or(z.literal("")),
+  receiptUrl: z.string().trim().max(300).optional().or(z.literal("")),
   source: z.enum(["MANUAL", "CHATBOT"]).default("MANUAL"),
 });
 

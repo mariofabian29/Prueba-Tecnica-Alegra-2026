@@ -1,5 +1,6 @@
 import "server-only";
 import type { TripAnalytics, TripLike } from "@/lib/analytics";
+import { BUCKET_META, type Bucket } from "@/lib/categories";
 import { formatMoney } from "@/lib/format";
 import { askClaude, aiEnabled, parseJsonLoose } from "@/lib/ai/provider";
 
@@ -10,32 +11,100 @@ export type Insight = {
   detail: string;
 };
 
+/** Fila del panel lateral: una categoria y como va frente a lo esperado. */
+export type BucketSignal = {
+  bucket: Bucket;
+  label: string;
+  emoji: string;
+  status: "over" | "within" | "under";
+  /** Texto corto que se muestra a la derecha: "+12%", "dentro del limite", "-8%". */
+  detail: string;
+};
+
 export type InsightsResult = {
   headline: string;
   summary: string;
+  /** Texto de la caja "Impulsado por IA". */
+  narrative: string;
   health: TripAnalytics["health"];
+  signals: BucketSignal[];
   insights: Insight[];
   /** "claude" cuando lo genero el modelo, "local" cuando fue el motor heuristico. */
   engine: "claude" | "local";
   generatedAt: string;
 };
 
-const SYSTEM_PROMPT = `Eres un asesor financiero de viajes. Analizas el presupuesto de un viaje en curso y das recomendaciones economicas concretas, accionables y en espanol neutro.
+const BUCKET_EMOJI: Record<Bucket, string> = {
+  LODGING: "🏨",
+  FOOD: "🍽️",
+  ACTIVITIES: "🎫",
+  TRANSPORT_OTHER: "🚕",
+};
+
+/**
+ * Reparto de referencia de un viaje tipico. Sirve para decir si una categoria
+ * va por encima o por debajo de lo esperado cuando el viaje no define
+ * sub-presupuestos por categoria.
+ */
+const REFERENCE_MIX: Record<Bucket, number> = {
+  LODGING: 0.35,
+  FOOD: 0.3,
+  ACTIVITIES: 0.2,
+  TRANSPORT_OTHER: 0.15,
+};
+
+const TOLERANCE = 5; // puntos porcentuales
+
+export function computeSignals(a: TripAnalytics): BucketSignal[] {
+  if (a.totalSpent <= 0) return [];
+
+  return a.byBucket
+    .filter((b) => b.total > 0 || REFERENCE_MIX[b.bucket] >= 0.3)
+    .map((b) => {
+      const expected = a.totalSpent * REFERENCE_MIX[b.bucket];
+      const deltaPct = expected > 0 ? ((b.total - expected) / expected) * 100 : 0;
+      const status: BucketSignal["status"] =
+        Math.abs(deltaPct) <= TOLERANCE ? "within" : deltaPct > 0 ? "over" : "under";
+
+      return {
+        bucket: b.bucket,
+        label: b.label,
+        emoji: BUCKET_EMOJI[b.bucket],
+        status,
+        detail:
+          status === "within"
+            ? "dentro del limite"
+            : `${deltaPct > 0 ? "+" : "−"}${Math.min(999, Math.abs(Math.round(deltaPct)))}%`,
+      };
+    })
+    .sort((x, y) => (x.status === "within" ? 1 : 0) - (y.status === "within" ? 1 : 0))
+    .slice(0, 4);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Claude                                                                     */
+/* -------------------------------------------------------------------------- */
+
+const SYSTEM_PROMPT = `Eres el asesor financiero de viajes de Tripflow. Analizas el presupuesto de un viaje y das recomendaciones economicas concretas y accionables, en espanol neutro.
 
 Reglas:
-- Sé directo y especifico: usa las cifras reales que te den, nunca inventes datos.
-- Nada de moralizar ni de frases genericas tipo "controla tus gastos".
+- Usa unicamente las cifras reales que te dan, nunca inventes datos.
+- Nada de moralizar ni frases genericas tipo "controla tus gastos".
 - Cada recomendacion debe poder ejecutarse hoy mismo (ej: "baja a 45 USD/dia en comida: son 2 almuerzos de calle en vez de restaurante").
 - Maximo 4 insights.
 - Responde SOLO JSON valido con esta forma:
-{"headline": string (max 60 chars), "summary": string (max 220 chars, 1-2 frases sobre como va el viaje), "insights": [{"tone": "tip"|"warning"|"danger"|"success", "title": string (max 50 chars), "detail": string (max 180 chars)}]}`;
+{"headline": string (max 40 chars, ej "Vas bien" o "Cuidado con el ritmo"), "summary": string (max 200 chars), "narrative": string (max 190 chars, una alerta o felicitacion concreta para el panel lateral), "insights": [{"tone": "tip"|"warning"|"danger"|"success", "title": string (max 50 chars), "detail": string (max 180 chars)}]}`;
 
 function buildPrompt(trip: TripLike, a: TripAnalytics): string {
-  const cat = a.byCategory
-    .map((c) => `  - ${c.label}: ${formatMoney(c.total, a.currency)} (${c.share.toFixed(0)}% del gasto, ${c.count} registros)`)
-    .join("\n") || "  (aun sin gastos)";
+  const buckets =
+    a.byBucket
+      .map((b) => `  - ${b.label}: ${formatMoney(b.total, a.currency)} (${b.share.toFixed(0)}% del gasto)`)
+      .join("\n") || "  (aun sin gastos)";
 
-  const people = a.byPerson.map((p) => `  - ${p.name}: ${formatMoney(p.total, a.currency)}`).join("\n") || "  (n/a)";
+  const detail =
+    a.byCategory
+      .map((c) => `  - ${c.label}: ${formatMoney(c.total, a.currency)} en ${c.count} registros`)
+      .join("\n") || "  (aun sin gastos)";
 
   const statusLabel =
     a.status === "NOT_STARTED" ? "aun no comienza" : a.status === "FINISHED" ? "ya termino" : "en curso";
@@ -44,29 +113,28 @@ function buildPrompt(trip: TripLike, a: TripAnalytics): string {
 - Destino: ${trip.destination}${trip.country ? `, ${trip.country}` : ""}
 - Estado: ${statusLabel}
 - Acompanantes: ${trip.companions.length > 0 ? trip.companions.map((c) => c.name).join(", ") : "viaja solo"}
-- Duracion: ${a.totalDays} dias (dia ${a.elapsedDays} de ${a.totalDays}, quedan ${a.daysLeft} dias)
+- Duracion: ${a.totalDays} dias (dia ${a.elapsedDays} de ${a.totalDays}, quedan ${a.daysLeft})
 - Presupuesto: ${formatMoney(a.budget, a.currency)}
 - Gastado: ${formatMoney(a.totalSpent, a.currency)} (${a.usedPct.toFixed(1)}%)
 - Disponible: ${formatMoney(a.remaining, a.currency)}
 - Presupuesto diario planificado: ${formatMoney(a.plannedDailyBudget, a.currency)}
 - Gasto promedio real por dia: ${formatMoney(a.avgPerDay, a.currency)}
-- Cuanto puede gastar por dia con lo que queda: ${formatMoney(a.safeDailyBudget, a.currency)}
+- Puede gastar por dia con lo que queda: ${formatMoney(a.safeDailyBudget, a.currency)}
 - Desvio de ritmo vs. plan: ${a.paceDelta >= 0 ? "+" : ""}${formatMoney(a.paceDelta, a.currency)}
-- Proyeccion de gasto total al ritmo actual: ${formatMoney(a.projectedTotal, a.currency)}${a.projectedOverrun > 0 ? ` (se pasaria por ${formatMoney(a.projectedOverrun, a.currency)})` : ""}
+- Proyeccion al ritmo actual: ${formatMoney(a.projectedTotal, a.currency)} (${a.projectedPct.toFixed(0)}% del presupuesto)${a.projectedOverrun > 0 ? ` — se pasaria por ${formatMoney(a.projectedOverrun, a.currency)}` : ""}
 - Gasto mas alto: ${a.biggestExpense ? `${a.biggestExpense.description} por ${formatMoney(a.biggestExpense.amount, a.currency)}` : "n/a"}
 
-Gasto por categoria:
-${cat}
+Gasto por grupo:
+${buckets}
 
-Gasto por persona:
-${people}
+Detalle por categoria:
+${detail}
 
 Genera el analisis en JSON.`;
 }
 
 export async function generateInsights(trip: TripLike, a: TripAnalytics): Promise<InsightsResult> {
   const local = localInsights(trip, a);
-
   if (!aiEnabled()) return local;
 
   const raw = await askClaude({
@@ -76,7 +144,13 @@ export async function generateInsights(trip: TripLike, a: TripAnalytics): Promis
     json: true,
   });
 
-  const parsed = parseJsonLoose<{ headline?: string; summary?: string; insights?: Insight[] }>(raw);
+  const parsed = parseJsonLoose<{
+    headline?: string;
+    summary?: string;
+    narrative?: string;
+    insights?: Insight[];
+  }>(raw);
+
   if (!parsed?.summary || !Array.isArray(parsed.insights) || parsed.insights.length === 0) {
     return local;
   }
@@ -86,7 +160,7 @@ export async function generateInsights(trip: TripLike, a: TripAnalytics): Promis
     .filter((i) => i && typeof i.title === "string" && typeof i.detail === "string")
     .slice(0, 4)
     .map((i) => ({
-      tone: validTones.has(i.tone) ? i.tone : ("tip" as const),
+      tone: (validTones.has(i.tone) ? i.tone : "tip") as Insight["tone"],
       title: String(i.title).slice(0, 80),
       detail: String(i.detail).slice(0, 240),
     }));
@@ -94,9 +168,11 @@ export async function generateInsights(trip: TripLike, a: TripAnalytics): Promis
   if (insights.length === 0) return local;
 
   return {
-    headline: (parsed.headline || local.headline).slice(0, 80),
+    headline: (parsed.headline || local.headline).slice(0, 60),
     summary: parsed.summary.slice(0, 300),
+    narrative: (parsed.narrative || local.narrative).slice(0, 260),
     health: a.health,
+    signals: local.signals,
     insights,
     engine: "claude",
     generatedAt: new Date().toISOString(),
@@ -106,6 +182,15 @@ export async function generateInsights(trip: TripLike, a: TripAnalytics): Promis
 /* -------------------------------------------------------------------------- */
 /*  Motor heuristico local: siempre disponible, sin dependencias externas.     */
 /* -------------------------------------------------------------------------- */
+
+const BUCKET_TIPS: Record<Bucket, string> = {
+  LODGING:
+    "Si aun quedan noches por reservar, mira opciones a 15-20 min del centro: bajan cerca de un 30%.",
+  FOOD: "Cambia una comida de restaurante por mercado local o menu del dia: suele costar la mitad.",
+  ACTIVITIES: "Busca un city pass o los dias de entrada gratuita a museos: ahorras entre 20% y 40%.",
+  TRANSPORT_OTHER:
+    "Un pase de transporte de varios dias sale mejor que pagar por trayecto, y deja los souvenirs para el ultimo dia con un tope fijo.",
+};
 
 export function localInsights(trip: TripLike, a: TripAnalytics): InsightsResult {
   const m = (n: number) => formatMoney(n, a.currency);
@@ -144,22 +229,13 @@ export function localInsights(trip: TripLike, a: TripAnalytics): InsightsResult 
     });
   }
 
-  // 2. Categoria dominante
-  if (a.topCategory && a.topCategory.share >= 35) {
-    const c = a.topCategory;
-    const tips: Record<string, string> = {
-      FOOD: "Cambia una comida en restaurante por mercado local o almuerzo del dia: suele costar la mitad.",
-      LODGING: "Si aun quedan noches por reservar, mira opciones a 15-20 min del centro: bajan 30% en promedio.",
-      TRANSPORT: "Compra un pase de transporte de varios dias o combina caminata para trayectos cortos.",
-      ENTERTAINMENT: "Busca city pass o dias de entrada gratuita a museos; ahorras entre 20% y 40%.",
-      SHOPPING: "Deja los souvenirs para el ultimo dia y con un tope fijo; evita compras impulsivas.",
-      HEALTH: "Revisa si tu seguro de viaje reembolsa estos gastos antes de volver.",
-      OTHER: "Revisa los gastos sin categoria clara: suelen esconder fugas pequenas y repetidas.",
-    };
+  // 2. Grupo de gasto dominante
+  if (a.topBucket && a.topBucket.share >= 35) {
+    const b = a.topBucket;
     insights.push({
-      tone: c.share >= 55 ? "warning" : "tip",
-      title: `${c.emoji} ${c.label} concentra el ${c.share.toFixed(0)}% del gasto`,
-      detail: `${m(c.total)} en ${c.count} registros. ${tips[c.category] ?? tips.OTHER}`,
+      tone: b.share >= 55 ? "warning" : "tip",
+      title: `${BUCKET_EMOJI[b.bucket]} ${b.label} concentra el ${b.share.toFixed(0)}% del gasto`,
+      detail: `${m(b.total)} en ${b.count} registros. ${BUCKET_TIPS[b.bucket]}`,
     });
   }
 
@@ -193,7 +269,8 @@ export function localInsights(trip: TripLike, a: TripAnalytics): InsightsResult 
     insights.push({
       tone: "tip",
       title: "Aun no registras gastos",
-      detail: "Registra el primero de forma manual o escribiendole al chat: \"gaste 25 en el almuerzo\". El panel se actualiza al instante.",
+      detail:
+        'Registra el primero con "Anadir gasto" o cuentaselo al asistente: "gaste 25 en el almuerzo". El panel se actualiza al instante.',
     });
   }
 
@@ -204,7 +281,7 @@ export function localInsights(trip: TripLike, a: TripAnalytics): InsightsResult 
         ? "Necesitas frenar el gasto"
         : a.health === "warning"
           ? "Cuidado con el ritmo"
-          : "Tu viaje va bien encaminado";
+          : "Vas bien";
 
   const summary =
     a.expenseCount === 0
@@ -214,10 +291,26 @@ export function localInsights(trip: TripLike, a: TripAnalytics): InsightsResult 
           ? `Te quedan ${m(a.remaining)} para ${a.daysLeft} dias, es decir ${m(a.safeDailyBudget)} diarios.`
           : `El viaje termino con ${a.remaining >= 0 ? `${m(a.remaining)} sin usar` : `${m(Math.abs(a.remaining))} de sobrecosto`}.`);
 
+  const signals = computeSignals(a);
+  const overBucket = signals.find((s) => s.status === "over");
+
+  const narrative =
+    a.expenseCount === 0
+      ? "Aun no hay suficientes datos — registra gastos y te avisaremos si algo se desvia del plan."
+      : a.totalSpent > a.budget
+        ? `Ya superaste el presupuesto en ${m(a.totalSpent - a.budget)}. Limita el gasto a lo esencial durante los ${a.daysLeft} dias que faltan.`
+        : a.projectedOverrun > 0
+          ? `Al ritmo actual terminarias en ${m(a.projectedTotal)}, ${m(a.projectedOverrun)} por encima del limite. Baja a ${m(a.safeDailyBudget)} por dia para llegar justo.`
+          : overBucket
+            ? `Cuida tu presupuesto en ${overBucket.label.toLowerCase()} — vas ${overBucket.detail} sobre lo esperado y aun faltan ${a.daysLeft} dias de viaje.`
+            : `Vas bien: ${a.usedPct.toFixed(0)}% del presupuesto en el dia ${a.elapsedDays} de ${a.totalDays}. Puedes gastar ${m(a.safeDailyBudget)} por dia sin desviarte.`;
+
   return {
     headline,
     summary,
+    narrative,
     health: a.health,
+    signals,
     insights: insights.slice(0, 4),
     engine: "local",
     generatedAt: new Date().toISOString(),

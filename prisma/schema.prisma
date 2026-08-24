@@ -58,11 +58,17 @@ model Expense {
   tripId      String
   amount      Float
   currency    String   @default("USD")
-  // FOOD | LODGING | TRANSPORT | ENTERTAINMENT | SHOPPING | HEALTH | OTHER
+  // Ver CATEGORIES en src/lib/categories.ts
   category    String   @default("OTHER")
   description String
+  // Lugar del plan de viaje asociado al gasto (opcional)
+  place       String?
   date        DateTime @default(now())
   paidBy      String   @default("Yo")
+  // NONE | EQUAL (reparto entre los acompanantes del viaje)
+  splitMode   String   @default("NONE")
+  // Ruta publica de la foto del recibo, si se adjunto
+  receiptUrl  String?
   // MANUAL | CHATBOT
   source      String   @default("MANUAL")
   createdAt   DateTime @default(now())
@@ -78,6 +84,10 @@ model ChatMessage {
   // user | assistant
   role      String
   content   String
+  // text | receipt | draft  -> define como se pinta la burbuja en el chat
+  kind      String   @default("text")
+  // JSON serializado con los datos extra del mensaje (recibo o borrador de gasto)
+  payload   String?
   createdAt DateTime @default(now())
 
   trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)

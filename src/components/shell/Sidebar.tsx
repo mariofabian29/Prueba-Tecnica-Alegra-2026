@@ -1,0 +1,104 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Sparkles } from "lucide-react";
+import { Avatar } from "./Avatar";
+import { cn } from "@/lib/format";
+
+export type SidebarSection = "trips" | "budget" | "profile" | "notifications" | "settings";
+
+/**
+ * Navegacion lateral del area privada.
+ * "Mis viajes" y "Presupuesto" navegan; el resto son secciones del diseno que
+ * todavia no tienen pantalla, asi que se muestran sin comportamiento.
+ */
+export function Sidebar({
+  userName,
+  active,
+  budgetHref,
+  onAssistant,
+}: {
+  userName: string;
+  active: SidebarSection;
+  budgetHref?: string;
+  onAssistant?: () => void;
+}) {
+  const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  async function logout() {
+    setLoggingOut(true);
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.replace("/login");
+    router.refresh();
+  }
+
+  const items: { key: SidebarSection; label: string; href?: string }[] = [
+    { key: "trips", label: "Mis viajes", href: "/viajes" },
+    { key: "budget", label: "Presupuesto", href: budgetHref },
+    { key: "profile", label: "Mi perfil" },
+    { key: "notifications", label: "Notificaciones" },
+    { key: "settings", label: "Ajustes" },
+  ];
+
+  return (
+    <aside className="hidden w-[252px] shrink-0 flex-col justify-between bg-cream-200 px-4 py-6 lg:flex">
+      <div>
+        <button
+          type="button"
+          onClick={onAssistant}
+          disabled={!onAssistant}
+          className={cn(
+            "mb-8 inline-flex h-11 items-center gap-2 rounded-pill px-6 text-[14px] font-semibold text-white shadow-md shadow-brand-500/25 transition-all",
+            onAssistant ? "brand-gradient hover:brightness-105 active:scale-[0.98]" : "brand-gradient opacity-60 cursor-default"
+          )}
+          title={onAssistant ? "Abrir el asistente de IA" : "Abre un viaje para usar el asistente"}
+        >
+          <Sparkles className="h-4 w-4" aria-hidden />
+          Asistente IA
+        </button>
+
+        <nav className="space-y-1">
+          {items.map((item) => {
+            const isActive = item.key === active;
+            const classes = cn(
+              "block rounded-pill px-4 py-2.5 text-[14px] font-semibold transition-colors",
+              isActive
+                ? "brand-gradient text-white shadow-sm"
+                : item.href
+                  ? "text-ink-500 hover:bg-cream-300 hover:text-ink-800"
+                  : "cursor-default text-ink-400"
+            );
+
+            return item.href && !isActive ? (
+              <Link key={item.key} href={item.href} className={classes}>
+                {item.label}
+              </Link>
+            ) : (
+              <span
+                key={item.key}
+                className={classes}
+                aria-current={isActive ? "page" : undefined}
+                title={!item.href ? "Seccion del diseno todavia no implementada" : undefined}
+              >
+                {item.label}
+              </span>
+            );
+          })}
+        </nav>
+      </div>
+
+      <button
+        type="button"
+        onClick={logout}
+        disabled={loggingOut}
+        className="flex items-center gap-3 rounded-pill px-1 py-1 text-[14px] text-ink-500 transition-colors hover:text-brand-600 disabled:opacity-50"
+      >
+        <Avatar name={userName} size="sm" />
+        {loggingOut ? "Cerrando..." : "Cerrar sesion"}
+      </button>
+    </aside>
+  );
+}

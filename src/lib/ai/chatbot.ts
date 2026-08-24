@@ -203,7 +203,7 @@ export function extractDate(text: string, today: Date): string {
   }
 
   if (/\banteayer\b|\bantier\b/.test(t)) return shiftDays(today, -2);
-  if (/\bayer\b/.test(t)) return shiftDays(today, -1);
+  if (/\bayer\b|\banoche\b/.test(t)) return shiftDays(today, -1);
   if (/\bhoy\b|\bahora\b|\brecien\b/.test(t)) return toDateInput(today);
 
   const hace = t.match(/\bhace\s+(\d+)\s+dias?\b/);
@@ -249,7 +249,7 @@ function buildDescription(text: string, category: Category): string {
     .replace(/\b(gaste|gasté|pague|pagué|compre|compré|registra|anota|apunta|añade|agrega|add|spent|paid)\b/gi, "")
     .replace(/\d{1,3}(?:[.,]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?\s*(k|mil)?/gi, "")
     .replace(/\b(usd|eur|cop|mxn|ars|brl|clp|pen|gbp|dolares|dólares|euros|pesos|soles|reales)\b/gi, "")
-    .replace(/\b(en|de|el|la|los|las|un|una|por|para|hoy|ayer|anteayer|antier|ahora|con)\b/gi, " ")
+    .replace(/\b(en|de|del|el|la|los|las|un|una|por|para|hoy|ayer|anoche|anteayer|antier|ahora|con|al|a)\b/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
 
@@ -259,7 +259,10 @@ function buildDescription(text: string, category: Category): string {
   return CATEGORY_META[category].label;
 }
 
-const QUESTION_HINTS = /\b(cuanto|cuánto|como voy|cómo voy|que tal|qué tal|queda|quedan|puedo gastar|resumen|balance|recomend|consejo|alcanza|voy bien|estoy|presupuesto\?)\b/i;
+const QUESTION_HINTS =
+  /\b(cuanto|cuánto|como voy|cómo voy|queda|quedan|puedo gastar|resumen|balance|recomend\w*|consejo\w*|sugerencia\w*|alcanza|voy bien|me paso|me pase)\b/i;
+
+const GREETING = /^\s*(hola|buenas|buenos dias|buenas tardes|buenas noches|hey|hi|hello|que tal|qué tal|holi)\b/i;
 
 export function localChatbot(
   message: string,
@@ -272,13 +275,24 @@ export function localChatbot(
   const amount = extractAmount(message);
   const looksLikeQuestion = message.includes("?") || QUESTION_HINTS.test(t);
 
+  // Saludo sin datos: presentamos las dos vias de uso.
+  if (GREETING.test(message) && amount === null && !QUESTION_HINTS.test(t)) {
+    return {
+      intent: "answer",
+      engine: "local",
+      reply: `Hola. Soy tu asistente de gastos del viaje a ${trip.destination}. Dime cuanto gastaste (por ejemplo "gaste 32 en el almuerzo") y lo registro, o preguntame como va tu presupuesto.`,
+    };
+  }
+
   // Pregunta sobre el estado del presupuesto
   if (looksLikeQuestion && (amount === null || /\bcuanto\b/.test(t))) {
     if (/recomend|consejo|que hago|qué hago/.test(t)) {
       const advice =
-        a.projectedOverrun > 0
-          ? `Al ritmo de ${m(a.avgPerDay)}/dia te pasarias por ${m(a.projectedOverrun)}. Bajar a ${m(a.safeDailyBudget)} diarios te deja justo en el presupuesto.`
-          : `Vas bien: puedes gastar hasta ${m(a.safeDailyBudget)} por dia durante los ${a.daysLeft} dias que quedan.`;
+        a.remaining < 0
+          ? `Ya superaste el presupuesto en ${m(Math.abs(a.remaining))}. Para los ${a.daysLeft} dias que faltan, limita el gasto a lo esencial: comida de mercado y transporte publico.`
+          : a.projectedOverrun > 0
+            ? `Al ritmo de ${m(a.avgPerDay)}/dia te pasarias por ${m(a.projectedOverrun)}. Bajar a ${m(a.safeDailyBudget)} diarios te deja justo en el presupuesto.`
+            : `Vas bien: puedes gastar hasta ${m(a.safeDailyBudget)} por dia durante los ${a.daysLeft} dias que quedan.`;
       const top = a.topCategory ? ` Tu mayor gasto es ${a.topCategory.label} con ${m(a.topCategory.total)} (${a.topCategory.share.toFixed(0)}%).` : "";
       return { intent: "answer", engine: "local", reply: advice + top };
     }
@@ -286,13 +300,20 @@ export function localChatbot(
       return {
         intent: "answer",
         engine: "local",
-        reply: `Te quedan ${m(a.remaining)} de ${m(a.budget)}. Para los ${a.daysLeft} dias restantes son ${m(a.safeDailyBudget)} por dia.`,
+        reply:
+          a.remaining < 0
+            ? `Ya no te queda presupuesto: vas ${m(Math.abs(a.remaining))} por encima de los ${m(a.budget)} previstos. Cada gasto nuevo aumenta el sobrecosto.`
+            : `Te quedan ${m(a.remaining)} de ${m(a.budget)}. Para los ${a.daysLeft} dias restantes son ${m(a.safeDailyBudget)} por dia.`,
       };
     }
     return {
       intent: "answer",
       engine: "local",
-      reply: `Llevas ${m(a.totalSpent)} gastados (${a.usedPct.toFixed(0)}% del presupuesto) en ${a.expenseCount} registros. Promedio de ${m(a.avgPerDay)} por dia y te quedan ${m(a.remaining)}.`,
+      reply:
+        `Llevas ${m(a.totalSpent)} gastados (${a.usedPct.toFixed(0)}% del presupuesto) en ${a.expenseCount} registros, con un promedio de ${m(a.avgPerDay)} por dia. ` +
+        (a.remaining < 0
+          ? `Estas ${m(Math.abs(a.remaining))} por encima del limite.`
+          : `Te quedan ${m(a.remaining)}.`),
     };
   }
 

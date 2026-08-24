@@ -1,4 +1,11 @@
-import { CATEGORIES, categoryMeta, type Category } from "@/lib/categories";
+import {
+  BUCKETS,
+  BUCKET_META,
+  CATEGORIES,
+  categoryMeta,
+  type Bucket,
+  type Category,
+} from "@/lib/categories";
 import { daysBetween, startOfDay } from "@/lib/format";
 
 export type ExpenseLike = {
@@ -43,6 +50,16 @@ export type DailyPoint = {
 
 export type PersonBreakdown = { name: string; total: number; count: number; share: number };
 
+/** Agrupacion de alto nivel que muestra el dashboard (4 tarjetas). */
+export type BucketBreakdown = {
+  bucket: Bucket;
+  label: string;
+  color: string;
+  total: number;
+  share: number;
+  count: number;
+};
+
 export type TripAnalytics = {
   currency: string;
   budget: number;
@@ -70,7 +87,11 @@ export type TripAnalytics = {
   /** on_track | warning | over_budget */
   health: "on_track" | "warning" | "over_budget";
   byCategory: CategoryBreakdown[];
+  byBucket: BucketBreakdown[];
   topCategory: CategoryBreakdown | null;
+  topBucket: BucketBreakdown | null;
+  /** Proyeccion expresada como porcentaje del presupuesto. */
+  projectedPct: number;
   daily: DailyPoint[];
   byPerson: PersonBreakdown[];
   biggestExpense: ExpenseLike | null;
@@ -124,6 +145,20 @@ export function computeAnalytics(
   })
     .filter((c) => c.count > 0)
     .sort((a, b) => b.total - a.total);
+
+  // ---- Desglose por bucket (las 4 tarjetas del dashboard) ----
+  const byBucket: BucketBreakdown[] = BUCKETS.map((bucket) => {
+    const items = expenses.filter((e) => categoryMeta(e.category).bucket === bucket);
+    const total = round2(items.reduce((acc, e) => acc + e.amount, 0));
+    return {
+      bucket,
+      label: BUCKET_META[bucket].label,
+      color: BUCKET_META[bucket].color,
+      total,
+      count: items.length,
+      share: totalSpent > 0 ? (total / totalSpent) * 100 : 0,
+    };
+  });
 
   // ---- Serie diaria ----
   const spentByDay = new Map<string, number>();
@@ -204,7 +239,10 @@ export function computeAnalytics(
     paceDelta,
     health,
     byCategory,
+    byBucket,
     topCategory: byCategory[0] ?? null,
+    topBucket: [...byBucket].sort((a, b) => b.total - a.total)[0] ?? null,
+    projectedPct: trip.budget > 0 ? (projectedTotal / trip.budget) * 100 : 0,
     daily,
     byPerson,
     biggestExpense,

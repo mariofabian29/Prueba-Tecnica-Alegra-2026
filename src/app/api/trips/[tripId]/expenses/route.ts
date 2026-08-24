@@ -39,8 +39,11 @@ export async function POST(request: Request, { params }: Params) {
         currency: trip.currency,
         category: body.category,
         description: body.description,
+        place: body.place || null,
         date: parseDay(body.date),
         paidBy: body.paidBy,
+        splitMode: body.splitMode,
+        receiptUrl: body.receiptUrl || null,
         source: body.source,
       },
     });

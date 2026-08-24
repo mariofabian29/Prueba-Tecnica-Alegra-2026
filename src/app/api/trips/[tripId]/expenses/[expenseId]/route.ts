@@ -28,6 +28,8 @@ export async function PATCH(request: Request, { params }: Params) {
         ...(body.description !== undefined && { description: body.description }),
         ...(body.date !== undefined && { date: parseDay(body.date) }),
         ...(body.paidBy !== undefined && { paidBy: body.paidBy }),
+        ...(body.place !== undefined && { place: body.place || null }),
+        ...(body.splitMode !== undefined && { splitMode: body.splitMode }),
       },
     });
 

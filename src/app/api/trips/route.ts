@@ -14,7 +14,11 @@ export async function GET() {
 export async function POST(request: Request) {
   return handle(async () => {
     const user = await requireUser();
-    const body = tripSchema.parse(await request.json());
+
+    // El formulario marca las fechas como opcionales: si faltan, planificamos
+    // una ventana por defecto de 7 dias a partir de hoy.
+    const raw = (await request.json()) as Record<string, unknown>;
+    const body = tripSchema.parse({ ...raw, ...defaultDates(raw) });
 
     const trip = await prisma.trip.create({
       data: {
@@ -38,4 +42,21 @@ export async function POST(request: Request) {
 
     return ok({ trip }, 201);
   });
+}
+
+function defaultDates(raw: Record<string, unknown>) {
+  const startDate = typeof raw.startDate === "string" && raw.startDate ? raw.startDate : isoDay(0);
+  const endDate =
+    typeof raw.endDate === "string" && raw.endDate
+      ? raw.endDate
+      : isoDay(6, new Date(`${startDate}T12:00:00`));
+  return { startDate, endDate };
+}
+
+function isoDay(offset: number, from = new Date()): string {
+  const d = new Date(from);
+  d.setHours(12, 0, 0, 0);
+  d.setDate(d.getDate() + offset);
+  const tz = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - tz).toISOString().slice(0, 10);
 }
