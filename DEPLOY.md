@@ -47,24 +47,38 @@ segundo**, que funciona siempre y no depende del panel de Vercel.
 2. Elige **Neon** (Serverless Postgres) y confirma.
 3. Al conectarla, Vercel añade sola la variable `DATABASE_URL`.
 
-> Según el plan y la región, puede que la pestaña no ofrezca Neon o que pida
-> pasar por el Marketplace. En ese caso, ve a la opción B.
+**Comprueba siempre que llegó**: ve a *Settings → Environment Variables* y busca
+`DATABASE_URL`. Si está, te falta únicamente **volver a desplegar** (las
+variables se leen durante el build, así que un despliegue anterior no las ve).
+Si no está, cógela a mano con la opción B.
 
-### Opción B — directamente en Neon (recomendada si A falla)
+### Opción B — copiar la cadena desde Neon
 
-1. Entra en **[neon.tech](https://neon.tech)** y crea una cuenta (es gratis y
-   no pide tarjeta; puedes entrar con GitHub).
-2. **Create project**. Ponle el nombre que quieras y deja la región por defecto.
-3. Al crearlo te muestra la cadena de conexión. Copia la que dice
-   **Connection string** en modo *Pooled connection*. Tiene esta forma:
+Sirve tanto si creaste la base desde Vercel como si la creaste directamente en
+**[neon.tech](https://neon.tech)** (gratis, sin tarjeta, se entra con GitHub).
+
+1. Abre tu proyecto en Neon.
+2. Pulsa **Connect**, el botón de arriba a la derecha del *Project dashboard*
+   (al lado de *Import data*). Las cadenas de conexión están ahí, no sueltas en
+   el panel.
+3. En la ventana que se abre, comprueba que la base y el rol son los correctos
+   y copia la cadena. Tiene esta forma:
 
    ```
    postgresql://usuario:contraseña@ep-algo-pooler.region.aws.neon.tech/neondb?sslmode=require
    ```
 
-4. En Neon, pulsa también en **Direct connection** y copia esa segunda cadena
-   (es la misma sin `-pooler`). La usaremos para crear las tablas.
+   El host lleva **`-pooler`**: esa es la cadena *pooled*, la que va en
+   `DATABASE_URL`.
+4. En esa misma ventana hay una opción para cambiar el tipo de conexión
+   (*pooled* / *direct*, según la versión aparece como casilla o desplegable).
+   Elige la **directa** y copia esa segunda cadena: es igual pero **sin**
+   `-pooler`. Va en `DIRECT_DATABASE_URL`.
 5. Pégalas en Vercel como variables de entorno en el paso 3.
+
+> Si no encuentras la opción de conexión directa, basta con coger la cadena
+> *pooled* y borrarle a mano el `-pooler` del host. Es exactamente la misma
+> diferencia.
 
 > **Por qué dos cadenas:** la *pooled* está pensada para que la app abra muchas
 > conexiones cortas, que es lo que necesita en producción. La *directa* es la
