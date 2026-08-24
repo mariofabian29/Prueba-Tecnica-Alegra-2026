@@ -1,20 +1,22 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { AppHeader } from "@/components/AppHeader";
-import { NewTripForm } from "@/components/NewTripForm";
+import { TopNav } from "@/components/shell/TopNav";
+import { FooterBar } from "@/components/shell/FooterBar";
+import { NewTripForm } from "@/components/trips/NewTripForm";
 
-export const metadata = { title: "Nuevo viaje · Viajero" };
+export const metadata = { title: "Planifica un nuevo viaje" };
 
 export default async function NewTripPage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
   return (
-    <div className="min-h-screen">
-      <AppHeader userName={session.name} showNewTrip={false} />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="flex min-h-screen flex-col">
+      <TopNav userName={session.name} />
+      <main className="flex-1 bg-cream-50 px-4">
         <NewTripForm />
       </main>
+      <FooterBar />
     </div>
   );
 }

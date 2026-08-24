@@ -61,6 +61,17 @@ export function computeSignals(a: TripAnalytics): BucketSignal[] {
   return a.byBucket
     .filter((b) => b.total > 0 || REFERENCE_MIX[b.bucket] >= 0.3)
     .map((b) => {
+      // Sin gastos no hay desviacion que reportar: un "-100%" seria enganoso.
+      if (b.total === 0) {
+        return {
+          bucket: b.bucket,
+          label: b.label,
+          emoji: BUCKET_EMOJI[b.bucket],
+          status: "within" as const,
+          detail: "sin registrar",
+        };
+      }
+
       const expected = a.totalSpent * REFERENCE_MIX[b.bucket];
       const deltaPct = expected > 0 ? ((b.total - expected) / expected) * 100 : 0;
       const status: BucketSignal["status"] =

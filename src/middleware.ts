@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const SESSION_COOKIE = "viajero_session";
 const PROTECTED_PREFIXES = ["/viajes", "/nuevo-viaje"];
+// La portada es publica: se muestra tanto a visitantes como a usuarios con sesion.
 const AUTH_ROUTES = ["/login", "/registro"];
 
 /**

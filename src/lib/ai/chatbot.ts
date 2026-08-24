@@ -16,6 +16,7 @@ export type ParsedExpense = {
 export type ChatResult =
   | { intent: "add_expense"; reply: string; expense: ParsedExpense; engine: "claude" | "local" }
   | { intent: "answer"; reply: string; engine: "claude" | "local" }
+  | { intent: "upload_receipt"; reply: string; engine: "claude" | "local" }
   | { intent: "clarify"; reply: string; engine: "claude" | "local" };
 
 /* -------------------------------------------------------------------------- */
@@ -47,8 +48,11 @@ Responde SIEMPRE con un unico objeto JSON valido, sin texto alrededor:
 2) Si es una pregunta sobre el presupuesto o pide consejo:
 {"intent":"answer","reply":"respuesta directa con cifras reales, max 3 frases"}
 
-3) Si falta el monto o no se entiende:
-{"intent":"clarify","reply":"pregunta concreta por lo que falta"}
+3) Si pide subir/cargar una factura, recibo o foto:
+{"intent":"upload_receipt","reply":"Toca para abrir la camara o elegir tu foto de la galeria."}
+
+4) Si falta el monto o no se entiende:
+{"intent":"clarify","reply":"pregunta concreta por lo que falta, ej: ¿Que comida fue? ¿Cuanto te costo?"}
 
 Reglas: interpreta fechas relativas ("hoy", "ayer", "el lunes") respecto a ${today}. Si no dice quien pago, usa "Yo". El monto siempre positivo y en ${a.currency}. Sé breve y concreto, nada de moralizar.`;
 }
@@ -115,6 +119,7 @@ function normalizeClaudeResult(
   }
 
   if (parsed.intent === "answer") return { intent: "answer", reply, engine: "claude" };
+  if (parsed.intent === "upload_receipt") return { intent: "upload_receipt", reply, engine: "claude" };
   if (parsed.intent === "clarify") return { intent: "clarify", reply, engine: "claude" };
   return null;
 }
@@ -246,7 +251,7 @@ function escapeRegex(s: string): string {
 
 function buildDescription(text: string, category: Category): string {
   const cleaned = text
-    .replace(/\b(gaste|gasté|pague|pagué|compre|compré|registra|anota|apunta|añade|agrega|add|spent|paid)\b/gi, "")
+    .replace(/\b(gaste|gasté|pague|pagué|compre|compré|registra|anota|apunta|añade|agrega|add|spent|paid|fueron|fue|son|costo|costó|salio|salió|me|nos|y)\b/gi, "")
     .replace(/\d{1,3}(?:[.,]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?\s*(k|mil)?/gi, "")
     .replace(/\b(usd|eur|cop|mxn|ars|brl|clp|pen|gbp|dolares|dólares|euros|pesos|soles|reales)\b/gi, "")
     .replace(/\b(en|de|del|el|la|los|las|un|una|por|para|hoy|ayer|anoche|anteayer|antier|ahora|con|al|a)\b/gi, " ")
@@ -264,6 +269,9 @@ const QUESTION_HINTS =
 
 const GREETING = /^\s*(hola|buenas|buenos dias|buenas tardes|buenas noches|hey|hi|hello|que tal|qué tal|holi)\b/i;
 
+const RECEIPT_INTENT =
+  /\b(factura|recibo|ticket|tirilla|comprobante|foto del? (recibo|factura)|cargar la factura|subir (el |la )?(recibo|factura|foto))\b/i;
+
 export function localChatbot(
   message: string,
   trip: TripLike,
@@ -274,6 +282,15 @@ export function localChatbot(
   const t = normalize(message);
   const amount = extractAmount(message);
   const looksLikeQuestion = message.includes("?") || QUESTION_HINTS.test(t);
+
+  // Peticion explicita de subir una factura.
+  if (RECEIPT_INTENT.test(t) && amount === null) {
+    return {
+      intent: "upload_receipt",
+      engine: "local",
+      reply: "Toca para abrir la camara o elegir tu foto de la galeria.",
+    };
+  }
 
   // Saludo sin datos: presentamos las dos vias de uso.
   if (GREETING.test(message) && amount === null && !QUESTION_HINTS.test(t)) {
@@ -342,9 +359,21 @@ export function localChatbot(
     };
   }
 
+  // Menciono una categoria pero no un monto: pedimos el dato que falta.
+  const hinted = guessCategory(message);
+  if (hinted !== "OTHER") {
+    const label = CATEGORY_META[hinted].label.toLowerCase();
+    return {
+      intent: "clarify",
+      engine: "local",
+      reply: `¿Que ${label} fue? ¿Cuanto te costo?`,
+    };
+  }
+
   return {
     intent: "clarify",
     engine: "local",
-    reply: 'No detecte un monto en tu mensaje. Escribeme algo como "gaste 45 en el almuerzo" o preguntame "¿cuanto me queda?".',
+    reply:
+      'No detecte un monto en tu mensaje. Escribeme algo como "gaste 45 en el almuerzo", o toca "Quiero cargar la factura" para subir una foto del recibo.',
   };
 }

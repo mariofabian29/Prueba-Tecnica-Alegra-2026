@@ -2,31 +2,34 @@ import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { getTripForUser, NotFoundError, toExpenseLike, toTripLike } from "@/lib/trips";
 import { computeAnalytics } from "@/lib/analytics";
-import { AppHeader } from "@/components/AppHeader";
-import { TripDashboard } from "@/components/TripDashboard";
+import { TripWorkspace } from "@/components/trip/TripWorkspace";
 import type { TripDTO } from "@/hooks/useTrip";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ tripId: string }> };
+type Props = {
+  params: Promise<{ tripId: string }>;
+  searchParams: Promise<{ nuevo?: string }>;
+};
 
 export async function generateMetadata({ params }: Props) {
   const session = await getSession();
-  if (!session) return { title: "Viajero" };
+  if (!session) return { title: "Tripflow" };
   const { tripId } = await params;
   try {
     const trip = await getTripForUser(tripId, session.userId);
-    return { title: `${trip.destination} · Viajero` };
+    return { title: `Viaje a ${trip.destination}` };
   } catch {
-    return { title: "Viaje no encontrado · Viajero" };
+    return { title: "Viaje no encontrado" };
   }
 }
 
-export default async function TripPage({ params }: Props) {
+export default async function TripPage({ params, searchParams }: Props) {
   const session = await getSession();
   if (!session) redirect("/login");
 
   const { tripId } = await params;
+  const { nuevo } = await searchParams;
 
   let trip;
   try {
@@ -37,16 +40,14 @@ export default async function TripPage({ params }: Props) {
   }
 
   const analytics = computeAnalytics(toTripLike(trip), toExpenseLike(trip.expenses));
-
-  // Se serializa a JSON para pasar del server component al client component.
   const initialTrip = JSON.parse(JSON.stringify(trip)) as TripDTO;
 
   return (
-    <div className="min-h-screen">
-      <AppHeader userName={session.name} />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <TripDashboard initialTrip={initialTrip} initialAnalytics={analytics} />
-      </main>
-    </div>
+    <TripWorkspace
+      userName={session.name}
+      initialTrip={initialTrip}
+      initialAnalytics={analytics}
+      openExpenseOnMount={nuevo === "1"}
+    />
   );
 }

@@ -7,7 +7,7 @@ import { Sparkles } from "lucide-react";
 import { Avatar } from "./Avatar";
 import { cn } from "@/lib/format";
 
-export type SidebarSection = "trips" | "budget" | "profile" | "notifications" | "settings";
+export type SidebarSection = "trips" | "budget" | "assistant" | "profile" | "notifications" | "settings";
 
 /**
  * Navegacion lateral del area privada.
@@ -51,8 +51,9 @@ export function Sidebar({
           onClick={onAssistant}
           disabled={!onAssistant}
           className={cn(
-            "mb-8 inline-flex h-11 items-center gap-2 rounded-pill px-6 text-[14px] font-semibold text-white shadow-md shadow-brand-500/25 transition-all",
-            onAssistant ? "brand-gradient hover:brightness-105 active:scale-[0.98]" : "brand-gradient opacity-60 cursor-default"
+            "brand-gradient mb-8 inline-flex h-11 items-center gap-2 rounded-pill px-6 text-[14px] font-semibold text-white shadow-md shadow-brand-500/25 transition-all",
+            onAssistant ? "hover:brightness-105 active:scale-[0.98]" : "cursor-default opacity-60",
+            active === "assistant" && "ring-2 ring-brand-300 ring-offset-2 ring-offset-cream-200"
           )}
           title={onAssistant ? "Abrir el asistente de IA" : "Abre un viaje para usar el asistente"}
         >

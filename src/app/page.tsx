@@ -1,7 +1,9 @@
-import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
+import { Landing } from "@/components/landing/Landing";
+
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const session = await getSession();
-  redirect(session ? "/viajes" : "/login");
+  return <Landing authenticated={Boolean(session)} />;
 }

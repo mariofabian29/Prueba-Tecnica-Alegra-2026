@@ -73,7 +73,12 @@ export async function POST(request: Request, { params }: Params) {
     }
 
     const assistantMessage = await prisma.chatMessage.create({
-      data: { tripId, role: "assistant", content: result.reply },
+      data: {
+        tripId,
+        role: "assistant",
+        content: result.reply,
+        kind: result.intent === "upload_receipt" ? "upload" : "text",
+      },
     });
 
     return ok({
