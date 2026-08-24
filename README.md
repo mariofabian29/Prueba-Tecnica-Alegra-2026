@@ -85,20 +85,43 @@ Registro e inicio de sesión con correo y contraseña. Las sesiones son JWT
 firmados guardados en una cookie `httpOnly`, y un middleware protege las rutas
 privadas.
 
+El registro valida en el cliente antes de llamar al servidor (nombre, formato
+del correo, requisitos de la contraseña y que la confirmación coincida), muestra
+un medidor de robustez en vivo y marca en rojo el campo que falla. Los errores
+del servidor —como un correo ya registrado— se muestran sobre el formulario, y
+mientras se crea la cuenta se ve la pantalla de carga de la marca.
+
+Cada ruta tiene además su pantalla de carga (`loading.tsx`) y su límite de error
+(`error.tsx`) con opción de reintentar, más un `global-error` autónomo por si
+falla el propio layout.
+
 ### Viajes
 Se crea un viaje con destino, límite de presupuesto, fechas, moneda y
 acompañantes. Las fechas son opcionales: si no se indican, se planifica una
 ventana de 7 días desde hoy.
 
+Desde **Mis viajes** se puede eliminar un viaje directamente con la papelera de
+su tarjeta, sin necesidad de abrirlo, con confirmación previa.
+
 > **Viajes pasados:** por decisión de producto, los viajes cuya fecha de fin ya
 > pasó se ignoran y no aparecen en el listado. La sección "Viajes pasados" del
-> diseño se incluye como vitrina ilustrativa y no es navegable.
+> diseño se incluye como vitrina ilustrativa: se muestra atenuada y en escala de
+> grises, y no es navegable.
 
 ### Registro de gastos: dos vías
 
 **1. Formulario manual** — Un pop-up superpuesto al dashboard con monto,
-selector de 12 categorías, quién pagó, división del gasto entre acompañantes,
-fecha y foto del recibo.
+selector de 12 categorías, descripción opcional, quién pagó, división del gasto
+entre acompañantes, fecha y foto del recibo.
+
+Las 12 categorías de captura se agrupan en los 4 grupos que resume la gráfica:
+
+| Grupo de la gráfica | Categorías que suman |
+| --- | --- |
+| Alojamiento | Alojamiento |
+| Comida | Comida, Bebidas, Comestibles |
+| Actividades | Turismo, Actividades, Compras |
+| Transporte y otros | Vuelos, Alquiler de coches, Transporte, Gasolina, Otro |
 
 **2. Asistente de IA** — Un chat donde describes el gasto en lenguaje natural
 y queda registrado. Entiende, entre otras cosas:
@@ -120,9 +143,12 @@ confirmar antes de cargar el gasto.
 Cada gasto que se registra —por cualquiera de las dos vías— refresca al
 instante las gráficas y el panel de IA, sin recargar la página:
 
-- **Banda de presupuesto** con gastado, restante y avance.
+- **Banda de presupuesto** con gastado, restante y avance. Al superar el límite
+  cambia a rojo y muestra una alerta con cuánto te pasaste; a partir del 85 %
+  avisa de que te acercas.
 - **Anillo por categoría** que reparte el presupuesto entre los cuatro grupos
   (Alojamiento, Comida, Actividades, Transporte y otros) y el importe sin usar.
+  Si se excede el presupuesto, la tarjeta se resalta en rojo con un aviso.
 - **Tarjetas de grupo** con el acumulado de cada uno.
 - **Evolución del gasto**: acumulado real frente al ritmo planificado, con la
   línea del límite de presupuesto.
