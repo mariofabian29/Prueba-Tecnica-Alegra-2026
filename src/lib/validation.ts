@@ -2,11 +2,20 @@ import { z } from "zod";
 import { CATEGORIES } from "@/lib/categories";
 import { CURRENCIES } from "@/lib/format";
 
-export const registerSchema = z.object({
-  name: z.string().trim().min(2, "El nombre debe tener al menos 2 caracteres").max(60),
-  email: z.string().trim().toLowerCase().email("Correo inválido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres").max(100),
-});
+export const registerSchema = z
+  .object({
+    name: z.string().trim().min(2, "El nombre debe tener al menos 2 caracteres").max(60),
+    email: z.string().trim().toLowerCase().email("Correo inválido"),
+    password: z
+      .string()
+      .min(8, "La contraseña debe tener al menos 8 caracteres")
+      .max(100, "La contraseña no puede superar los 100 caracteres"),
+    confirmPassword: z.string().optional(),
+  })
+  .refine((d) => !d.confirmPassword || d.confirmPassword === d.password, {
+    message: "Las contraseñas no coinciden",
+    path: ["confirmPassword"],
+  });
 
 export const loginSchema = z.object({
   email: z.string().trim().toLowerCase().email("Correo inválido"),
