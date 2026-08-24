@@ -13,7 +13,8 @@
     "db:reset": "prisma migrate reset --force && npm run seed",
     "db:studio": "prisma studio",
     "typecheck": "tsc --noEmit",
-    "test": "tsx tests/photos.test.ts"
+    "test": "tsx tests/photos.test.ts",
+    "build:deploy": "node scripts/prepare-postgres.mjs && prisma generate --schema prisma/schema.postgres.prisma && prisma db push --schema prisma/schema.postgres.prisma --skip-generate && tsx prisma/seed.ts && next build"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

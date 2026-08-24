@@ -5,6 +5,7 @@ import { Camera, ChevronDown, X } from "lucide-react";
 import { CATEGORY_META, type Category } from "@/lib/categories";
 import { formatDate, toDateInput } from "@/lib/format";
 import { revalidateTrip } from "@/hooks/useTrip";
+import { prepareReceipt } from "@/lib/image";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
@@ -67,8 +68,10 @@ export function AddExpenseModal({
     setUploading(true);
     setError(null);
     try {
+      // Se reduce en el navegador: la foto viaja ligera y cabe en la base de datos.
+      const prepared = await prepareReceipt(file);
       const body = new FormData();
-      body.append("file", file);
+      body.append("file", new File([prepared.blob], file.name, { type: prepared.type }));
       const response = await fetch(`/api/trips/${tripId}/receipt`, { method: "POST", body });
       const data = await response.json();
 

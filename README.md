@@ -40,6 +40,12 @@ npm run build
 npm start
 ```
 
+### Publicarlo en la web
+
+Para dejarlo accesible con un link público (Vercel + Postgres, plan gratuito y
+sin tarjeta), sigue **[DEPLOY.md](DEPLOY.md)**. Vercel se conecta al repositorio
+y redespliega solo con cada push.
+
 ### Otros comandos
 
 | Comando | Qué hace |
@@ -50,6 +56,7 @@ npm start
 | `npm run db:studio` | Abre Prisma Studio para inspeccionar los datos |
 | `npm run typecheck` | Comprueba los tipos con TypeScript |
 | `npm test` | Ejecuta las pruebas de la selección de fotos de destino |
+| `npm run build:deploy` | Build para hosting: genera el esquema Postgres, crea las tablas y siembra la demo |
 
 ---
 
@@ -201,7 +208,7 @@ A la derecha del presupuesto, y en todo momento:
 | Framework | Next.js 15 (App Router) | Un solo proyecto para UI y API; se levanta con un comando |
 | Lenguaje | TypeScript en modo estricto | Contratos verificados entre dominio, API y UI |
 | Estilos | Tailwind CSS v4 | Sistema de diseño en tokens, sin CSS suelto |
-| Base de datos | SQLite + Prisma | Cero infraestructura para ejecutar y revisar el proyecto |
+| Base de datos | SQLite + Prisma en local, Postgres al desplegar | Cero infraestructura para revisar el proyecto, y un motor real en la web |
 | Gráficas | Recharts | Componibles y con animación al actualizar |
 | Datos en cliente | SWR | Revalidación tras cada mutación y refresco periódico |
 | Sesiones | jose (JWT) + bcryptjs | Cookies `httpOnly` sin dependencias de terceros |
@@ -223,6 +230,7 @@ tests/
 
 scripts/
   setup.mjs              Preparación del entorno en un paso
+  prepare-postgres.mjs   Genera el esquema Postgres a partir del de SQLite
 
 src/
   app/
@@ -317,6 +325,12 @@ que sería engañoso.
   peticiones externas.
 - **La foto del recibo se guarda siempre.** Aunque la extracción falle, la
   imagen queda adjunta y solo se pide el monto.
+- **Sin disco escribible.** Los recibos se reducen en el navegador y se guardan
+  en la base de datos, así que el mismo código corre en local y en un hosting
+  serverless sin depender de un servicio de almacenamiento aparte.
+- **Un solo modelo de datos.** El esquema de Postgres se genera a partir del de
+  SQLite en el build, en lugar de mantener dos a mano: se edita en un único
+  sitio y no pueden separarse.
 
 ### Alcance
 

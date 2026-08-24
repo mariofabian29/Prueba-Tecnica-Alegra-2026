@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Send, Sparkles, X } from "lucide-react";
 import { useChat, revalidateTrip, type ChatMessageDTO } from "@/hooks/useTrip";
 import { cn } from "@/lib/format";
+import { prepareReceipt } from "@/lib/image";
 import { Button } from "@/components/ui/Button";
 import { UploadCard } from "./UploadCard";
 import { DraftCard, type Draft } from "./DraftCard";
@@ -79,8 +80,10 @@ export function Assistant({
     setUploading(true);
     setError(null);
     try {
+      // Se reduce en el navegador: la foto viaja ligera y cabe en la base de datos.
+      const prepared = await prepareReceipt(file);
       const body = new FormData();
-      body.append("file", file);
+      body.append("file", new File([prepared.blob], file.name, { type: prepared.type }));
       const response = await fetch(`/api/trips/${tripId}/receipt`, { method: "POST", body });
       const data = await response.json();
 

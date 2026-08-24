@@ -1,6 +1,3 @@
-import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { handle, ok, fail } from "@/lib/api";
@@ -8,18 +5,13 @@ import { isSupportedMediaType, readReceipt } from "@/lib/ai/receipt";
 
 type Params = { params: Promise<{ tripId: string }> };
 
-const MAX_BYTES = 8 * 1024 * 1024; // 8 MB
-const EXTENSIONS: Record<string, string> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-  "image/gif": "gif",
-};
-
 /**
- * Sube la foto de un recibo, la guarda en /public/uploads y pide a la IA que
- * extraiga monto, categoría y fecha. Devuelve un borrador para confirmar.
+ * Límite del archivo ya reducido en el navegador. Se guarda como data URI en
+ * la base de datos, de modo que la app no depende de un disco escribible y
+ * funciona igual en local que en un hosting sin sistema de archivos.
  */
+const MAX_BYTES = 2 * 1024 * 1024;
+
 export async function POST(request: Request, { params }: Params) {
   return handle(async () => {
     const user = await requireUser();
@@ -32,20 +24,15 @@ export async function POST(request: Request, { params }: Params) {
     const file = form.get("file");
     if (!(file instanceof File)) return fail("No se recibió ninguna imagen", 400);
     if (file.size === 0) return fail("La imagen está vacía", 400);
-    if (file.size > MAX_BYTES) return fail("La imagen supera el límite de 8 MB", 413);
+    if (file.size > MAX_BYTES) {
+      return fail("La imagen es demasiado grande. Prueba con una foto más ligera.", 413);
+    }
     if (!isSupportedMediaType(file.type)) {
       return fail("Formato no soportado. Usa JPG, PNG, WEBP o GIF.", 415);
     }
 
-    const bytes = Buffer.from(await file.arrayBuffer());
-
-    const dir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(dir, { recursive: true });
-    const filename = `${randomUUID()}.${EXTENSIONS[file.type]}`;
-    await writeFile(path.join(dir, filename), bytes);
-    const receiptUrl = `/uploads/${filename}`;
-
-    const draft = await readReceipt(bytes.toString("base64"), file.type, trip.currency);
+    const base64 = Buffer.from(await file.arrayBuffer()).toString("base64");
+    const receiptUrl = `data:${file.type};base64,${base64}`;
 
     // La foto queda en el historial del chat aunque el gasto no se confirme.
     await prisma.chatMessage.create({
@@ -57,6 +44,8 @@ export async function POST(request: Request, { params }: Params) {
         payload: JSON.stringify({ receiptUrl }),
       },
     });
+
+    const draft = await readReceipt(base64, file.type, trip.currency);
 
     const message = draft.extracted
       ? "Confirma la información y la cargo automáticamente"

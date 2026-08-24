@@ -11,6 +11,8 @@ dist
 !.env.example
 
 # prisma / sqlite
+# El esquema de Postgres se genera en el build a partir del de SQLite
+prisma/schema.postgres.prisma
 prisma/*.db
 prisma/*.db-journal
 *.sqlite
