@@ -3,13 +3,15 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
-import { destinationArt } from "@/lib/destination-art";
+import { DestinationImage } from "@/components/DestinationImage";
+import { revalidateTrips } from "@/hooks/useTrip";
 import { formatDate, formatMoney, cn } from "@/lib/format";
 
 export type ActiveTrip = {
   id: string;
   destination: string;
   country: string | null;
+  photoUrl: string | null;
   budget: number;
   currency: string;
   startDate: string;
@@ -57,6 +59,7 @@ export function ActiveTripCard({
         setDeleting(false);
         return;
       }
+      await revalidateTrips();
       onDeleted(trip.id);
     } catch {
       setError("No pudimos conectar con el servidor");
@@ -71,11 +74,11 @@ export function ActiveTripCard({
         className="group block rounded-[14px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
       >
         <div className="relative overflow-hidden rounded-[14px]">
-          <div
-            className="h-[175px] bg-cream-300 bg-cover bg-center transition-transform duration-300 group-hover:scale-[1.03]"
-            style={{ backgroundImage: destinationArt(trip.destination).dataUri }}
-            role="img"
-            aria-label={`Ilustración de ${trip.destination}`}
+          <DestinationImage
+            tripId={trip.id}
+            destination={trip.destination}
+            photoUrl={trip.photoUrl}
+            className="h-[175px] transition-transform duration-300 group-hover:scale-[1.03]"
           />
           <span
             className={cn(

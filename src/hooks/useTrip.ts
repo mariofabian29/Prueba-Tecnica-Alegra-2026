@@ -30,6 +30,7 @@ export type TripDTO = {
   endDate: string;
   notes: string | null;
   coverEmoji: string;
+  photoUrl: string | null;
   companions: { id: string; name: string; email: string | null }[];
   expenses: ExpenseDTO[];
 };
@@ -63,6 +64,7 @@ async function fetcher<T>(url: string): Promise<T> {
 export const tripKey = (tripId: string) => `/api/trips/${tripId}`;
 export const insightsKey = (tripId: string) => `/api/trips/${tripId}/insights`;
 export const chatKey = (tripId: string) => `/api/trips/${tripId}/chat`;
+export const TRIPS_KEY = "/api/trips";
 
 /**
  * Fuente de verdad del dashboard. Refresca cada 15s para mantener las graficas
@@ -81,6 +83,29 @@ export function useTrip(tripId: string, fallback?: { trip: TripDTO; analytics: T
   );
 
   return { trip: data?.trip, analytics: data?.analytics, error, isLoading, mutate };
+}
+
+export type TripSummary = {
+  id: string;
+  destination: string;
+  country: string | null;
+  photoUrl: string | null;
+  budget: number;
+  currency: string;
+  startDate: string;
+  endDate: string;
+  spent: number;
+  expenseCount: number;
+};
+
+/** Viajes vigentes del usuario, para la navegación lateral. */
+export function useTrips() {
+  const { data, error, isLoading } = useSWR<{ trips: TripSummary[] }>(TRIPS_KEY, fetcher, {
+    revalidateOnFocus: true,
+    dedupingInterval: 10_000,
+  });
+
+  return { trips: data?.trips ?? [], error, isLoading };
 }
 
 export function useInsights(tripId: string) {
@@ -106,4 +131,13 @@ export function useChat(tripId: string) {
 /** Revalida viaje + insights tras cualquier mutacion de gastos. */
 export async function revalidateTrip(tripId: string) {
   await Promise.all([globalMutate(tripKey(tripId)), globalMutate(insightsKey(tripId))]);
+}
+
+/**
+ * Revalida la lista de viajes.
+ * Se llama al crear o borrar uno para que la navegación lateral no se quede
+ * mostrando una lista en caché.
+ */
+export async function revalidateTrips() {
+  await globalMutate(TRIPS_KEY);
 }

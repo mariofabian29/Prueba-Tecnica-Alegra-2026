@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2 } from "lucide-react";
-import { useTrip, useInsights, type TripDTO } from "@/hooks/useTrip";
+import { useTrip, useInsights, revalidateTrips, type TripDTO } from "@/hooks/useTrip";
 import type { TripAnalytics } from "@/lib/analytics";
-import { destinationArt } from "@/lib/destination-art";
+import { DestinationImage } from "@/components/DestinationImage";
 import { formatDate } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
+import { navigateWithFallback } from "@/lib/navigation";
 import { BudgetHero } from "./BudgetHero";
 import { CategoryDonut } from "./CategoryDonut";
 import { BucketCards } from "./BucketCards";
@@ -40,7 +41,6 @@ export function TripDashboard({ userName, initialTrip, initialAnalytics, openExp
   const t = trip ?? initialTrip;
   const a = analytics ?? initialAnalytics;
   const people = ["Yo", ...t.companions.map((c) => c.name)];
-  const art = destinationArt(t.destination);
 
   async function deleteTrip() {
     if (!confirm(`¿Eliminar el viaje a ${t.destination} y todos sus gastos? Esta accion no se puede deshacer.`)) {
@@ -49,8 +49,8 @@ export function TripDashboard({ userName, initialTrip, initialAnalytics, openExp
     setDeleting(true);
     const response = await fetch(`/api/trips/${t.id}`, { method: "DELETE" });
     if (response.ok) {
-      router.replace("/viajes");
-      router.refresh();
+      await revalidateTrips();
+      navigateWithFallback(router.replace, "/viajes");
     } else {
       setDeleting(false);
     }
@@ -61,11 +61,11 @@ export function TripDashboard({ userName, initialTrip, initialAnalytics, openExp
       {/* ------------------------------ Presupuesto ----------------------------- */}
       <div className="min-w-0 flex-1 bg-cream-50 px-6 pb-12 pt-6 sm:px-8">
         <div className="relative">
-          <div
-            className="h-[210px] rounded-[20px] bg-cream-300 bg-cover bg-center"
-            style={{ backgroundImage: art.dataUri }}
-            role="img"
-            aria-label={`Ilustracion de ${t.destination}`}
+          <DestinationImage
+            tripId={t.id}
+            destination={t.destination}
+            photoUrl={t.photoUrl}
+            className="h-[210px] rounded-[20px]"
           />
           <div className="relative -mt-12 ml-0 mr-8 flex flex-wrap items-center justify-between gap-3 rounded-[20px] bg-white px-7 py-5 shadow-sm sm:mr-16">
             <h1 className="text-[24px] font-bold tracking-tight text-ink-900">

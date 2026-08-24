@@ -27,7 +27,7 @@ export function TripWorkspace({
     <AppShell
       userName={userName}
       active="budget"
-      budgetHref={`/viajes/${initialTrip.id}`}
+      activeTripId={initialTrip.id}
       onAssistant={() => router.push(`/viajes/${initialTrip.id}/asistente`)}
     >
       <TripDashboard

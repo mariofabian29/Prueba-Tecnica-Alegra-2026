@@ -9,13 +9,14 @@ import { Sidebar, SidebarContent, type SidebarSection } from "./Sidebar";
 type Props = {
   userName: string;
   active: SidebarSection;
-  budgetHref?: string;
+  /** Viaje abierto, para resaltarlo en el desplegable de Presupuesto. */
+  activeTripId?: string;
   onAssistant?: () => void;
   children: React.ReactNode;
 };
 
 /** Layout con barra de marca, navegación lateral y franja inferior. */
-export function AppShell({ userName, active, budgetHref, onAssistant, children }: Props) {
+export function AppShell({ userName, active, activeTripId, onAssistant, children }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   // En móvil el menú se superpone: bloqueamos el desplazamiento del fondo.
@@ -31,7 +32,7 @@ export function AppShell({ userName, active, budgetHref, onAssistant, children }
     };
   }, [menuOpen]);
 
-  const nav = { userName, active, budgetHref, onAssistant };
+  const nav = { userName, active, activeTripId, onAssistant };
 
   return (
     <div className="flex min-h-screen flex-col">
