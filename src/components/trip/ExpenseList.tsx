@@ -89,8 +89,8 @@ export function ExpenseList({
               </span>
 
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[14px] font-semibold text-ink-900">{expense.description}</p>
-                <p className="mt-0.5 flex items-center gap-1.5 truncate text-[12.5px] text-ink-400">
+                <p className="text-[14px] font-semibold text-ink-900">{expense.description}</p>
+                <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[12.5px] text-ink-400">
                   <span>{meta.label}</span>
                   <span aria-hidden>·</span>
                   <span>{formatDate(expense.date, { day: "2-digit", month: "short" })}</span>
@@ -130,7 +130,7 @@ export function ExpenseList({
                 </a>
               )}
 
-              <span className="shrink-0 text-[14px] font-bold text-ink-900">
+              <span className="shrink-0 whitespace-nowrap text-[14px] font-bold text-ink-900">
                 {currency} {new Intl.NumberFormat("en-US").format(Math.round(expense.amount))}
               </span>
 

@@ -7,24 +7,29 @@ import { Sparkles } from "lucide-react";
 import { Avatar } from "./Avatar";
 import { cn } from "@/lib/format";
 
-export type SidebarSection = "trips" | "budget" | "assistant" | "profile" | "notifications" | "settings";
+export type SidebarSection =
+  | "trips"
+  | "budget"
+  | "assistant"
+  | "profile"
+  | "notifications"
+  | "settings";
 
-/**
- * Navegación lateral del area privada.
- * "Mis viajes" y "Presupuesto" navegan; el resto son secciones del diseño que
- * todavia no tienen pantalla, así que se muestran sin comportamiento.
- */
-export function Sidebar({
-  userName,
-  active,
-  budgetHref,
-  onAssistant,
-}: {
+type Props = {
   userName: string;
   active: SidebarSection;
   budgetHref?: string;
   onAssistant?: () => void;
-}) {
+  /** Se invoca al pulsar cualquier destino, para cerrar el menú en móvil. */
+  onNavigate?: () => void;
+};
+
+/**
+ * Contenido de la navegación privada.
+ * "Mis viajes" y "Presupuesto" navegan; el resto son secciones del diseño que
+ * todavía no tienen pantalla, así que se muestran sin comportamiento.
+ */
+export function SidebarContent({ userName, active, budgetHref, onAssistant, onNavigate }: Props) {
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -44,11 +49,14 @@ export function Sidebar({
   ];
 
   return (
-    <aside className="hidden w-[252px] shrink-0 flex-col justify-between bg-cream-200 px-4 py-6 lg:flex">
+    <div className="flex h-full flex-col justify-between px-4 py-6">
       <div>
         <button
           type="button"
-          onClick={onAssistant}
+          onClick={() => {
+            onAssistant?.();
+            onNavigate?.();
+          }}
           disabled={!onAssistant}
           className={cn(
             "brand-gradient mb-8 inline-flex h-11 items-center gap-2 rounded-pill px-6 text-[14px] font-semibold text-white shadow-md shadow-brand-500/25 transition-all",
@@ -74,7 +82,7 @@ export function Sidebar({
             );
 
             return item.href && !isActive ? (
-              <Link key={item.key} href={item.href} className={classes}>
+              <Link key={item.key} href={item.href} className={classes} onClick={onNavigate}>
                 {item.label}
               </Link>
             ) : (
@@ -82,7 +90,7 @@ export function Sidebar({
                 key={item.key}
                 className={classes}
                 aria-current={isActive ? "page" : undefined}
-                title={!item.href ? "Sección del diseño todavia no implementada" : undefined}
+                title={!item.href ? "Sección del diseño todavía no implementada" : undefined}
               >
                 {item.label}
               </span>
@@ -100,6 +108,15 @@ export function Sidebar({
         <Avatar name={userName} size="sm" />
         {loggingOut ? "Cerrando..." : "Cerrar sesión"}
       </button>
+    </div>
+  );
+}
+
+/** Navegación lateral fija, visible a partir de pantallas grandes. */
+export function Sidebar(props: Props) {
+  return (
+    <aside className="hidden w-[252px] shrink-0 bg-cream-200 lg:block">
+      <SidebarContent {...props} />
     </aside>
   );
 }
