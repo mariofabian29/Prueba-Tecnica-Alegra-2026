@@ -114,6 +114,22 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 Pulsa **Deploy**. Al terminar tendrás el link público, del tipo
 `https://tripflow.vercel.app`.
 
+### Comprobar el estado
+
+Abre **`/api/health`** en tu despliegue:
+
+```
+https://tu-app.vercel.app/api/health
+```
+
+Responde en claro si hay base de datos, si las tablas existen, si el secreto de
+sesión está puesto y qué motor usa el asistente. Es la forma más rápida de ver
+qué falta, sin buscar en los registros del build.
+
+> El despliegue **no falla** aunque no haya base de datos: la aplicación se
+> publica igualmente y `/api/health` explica lo que falta. Así siempre queda
+> una URL donde mirar.
+
 Quien entre puede **registrarse** o probar con la cuenta de demostración:
 
 | Correo | Contraseña |

@@ -43,6 +43,15 @@ function step(title) {
   line();
 }
 
+function warn(title, lines) {
+  console.warn("");
+  line("!");
+  console.warn(`  ⚠ ${title}`);
+  line("!");
+  for (const l of lines) console.warn(`  ${l}`);
+  console.warn("");
+}
+
 function abort(title, lines) {
   console.error("");
   line("=");
@@ -75,31 +84,42 @@ step("Conexión a la base de datos");
 
 const runtimeVar = RUNTIME_VARS.find((name) => process.env[name]);
 
-if (!runtimeVar) {
+/**
+ * La base de datos es opcional para COMPILAR: Prisma genera el cliente sin
+ * conexión. Si falta, se avisa con claridad y el despliegue continúa, de modo
+ * que siempre queda una URL publicada donde ver qué ocurre, en lugar de un
+ * build fallido cuyo log hay que ir a buscar.
+ */
+let runtimeUrl = null;
+
+if (runtimeVar) {
+  runtimeUrl = process.env[runtimeVar];
+  process.env.DATABASE_URL = runtimeUrl;
+  console.log(`  Aplicación: ${safe(runtimeUrl)}  (${runtimeVar})`);
+} else {
   // Se listan los NOMBRES de las variables relacionadas, nunca sus valores.
   const related = Object.keys(process.env)
     .filter((name) => /^(DATABASE|POSTGRES|PG|NEON)/i.test(name))
     .sort();
 
-  abort("No hay ninguna cadena de conexión a la base de datos", [
+  warn("No hay ninguna cadena de conexión a la base de datos", [
     related.length === 0
-      ? "El despliegue no ve NINGUNA variable de base de datos: no está conectada."
-      : `Variables de base de datos que sí llegan al build:\n  ${related.map((n) => `  · ${n}`).join("\n  ")}`,
+      ? "El despliegue no ve NINGUNA variable de base de datos."
+      : "Variables de base de datos que sí llegan al build:",
+    ...related.map((n) => `  · ${n}`),
     "",
     "Se buscaron estos nombres:",
     ...RUNTIME_VARS.map((n) => `  · ${n}`),
     "",
-    "Añade DATABASE_URL en Vercel → Settings → Environment Variables,",
-    "marca Production, Preview y Development, y vuelve a desplegar:",
-    "las variables se leen durante el build, no después.",
+    "La aplicación se va a publicar igualmente, pero sin base de datos no se",
+    "podrá iniciar sesión ni registrarse. Para arreglarlo:",
+    "  1. Vercel → Settings → Environment Variables",
+    "  2. Añade DATABASE_URL (Production, Preview y Development)",
+    "  3. Vuelve a desplegar: las variables se leen durante el build",
+    "",
+    "Comprueba el estado en:  https://TU-APP.vercel.app/api/health",
   ]);
 }
-
-const runtimeUrl = process.env[runtimeVar];
-console.log(`  Aplicación: ${safe(runtimeUrl)}  (${runtimeVar})`);
-
-// El resto del build espera encontrarla siempre bajo este nombre.
-process.env.DATABASE_URL = runtimeUrl;
 
 /* --------------------- 2 y 3. Esquema y cliente -------------------------- */
 
@@ -110,6 +130,10 @@ run("npx", ["prisma", "generate", "--schema", SCHEMA]);
 /* ----------------------------- 4. Tablas -------------------------------- */
 
 step("Tablas y datos de demostración");
+
+if (!runtimeUrl) {
+  console.log("  Se omite: no hay conexión configurada.");
+}
 
 /**
  * Candidatas para aplicar el esquema, en orden. Los cambios de esquema no
@@ -136,7 +160,7 @@ const unique = candidates.filter((c) => !seen.has(c.url) && seen.add(c.url));
 let applied = null;
 let lastError = null;
 
-for (const candidate of unique) {
+for (const candidate of runtimeUrl ? unique : []) {
   console.log(`\n▸ Creando las tablas con la ${candidate.label}`);
   console.log(`  ${safe(candidate.url)}`);
   try {
@@ -151,25 +175,28 @@ for (const candidate of unique) {
   }
 }
 
-if (!applied) {
-  abort("No se pudieron crear las tablas", [
+if (runtimeUrl && !applied) {
+  warn("No se pudieron crear las tablas", [
     "Se probaron estas conexiones y ninguna respondió:",
     ...unique.map((c) => `  · ${c.label} → ${safe(c.url)}`),
     "",
     "Revisa que la cadena sea correcta y termine en ?sslmode=require.",
     `Último error: ${lastError?.message ?? "desconocido"}`,
+    "",
+    "La aplicación se publica igualmente. Comprueba el estado en:",
+    "  https://TU-APP.vercel.app/api/health",
   ]);
-}
+} else if (applied) {
+  console.log(`\n✓ Tablas listas (${applied.label})`);
 
-console.log(`\n✓ Tablas listas (${applied.label})`);
-
-try {
-  console.log("\n▸ Cargando los datos de demostración");
-  run("npx", ["tsx", "prisma/seed.ts"], { DATABASE_URL: applied.url });
-} catch {
-  // No son imprescindibles para que la aplicación funcione.
-  console.warn("\n⚠ No se pudieron cargar los datos de demostración. El despliegue continúa.");
-  console.warn("  Podrás registrarte con tu propia cuenta igualmente.");
+  try {
+    console.log("\n▸ Cargando los datos de demostración");
+    run("npx", ["tsx", "prisma/seed.ts"], { DATABASE_URL: applied.url });
+  } catch {
+    // No son imprescindibles para que la aplicación funcione.
+    console.warn("\n⚠ No se pudieron cargar los datos de demostración. El despliegue continúa.");
+    console.warn("  Podrás registrarte con tu propia cuenta igualmente.");
+  }
 }
 
 /* --------------------------- 5. Compilación ------------------------------ */

@@ -6,46 +6,12 @@
  * se separen— el de producción se deriva del de desarrollo cambiando solo el
  * bloque `datasource`. El resto del modelo es idéntico.
  *
- * Lo ejecuta el build de despliegue (`npm run build:deploy`).
+ * Lo ejecuta el build de despliegue (`npm run build:deploy`). No necesita
+ * conexión: generar el esquema y el cliente de Prisma no toca la base de datos.
+ * De si hay conexión, y de qué hacer si falta, se ocupa scripts/deploy.mjs.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-
-// Se comprueba aqui, en el primer paso del despliegue, porque Prisma tambien
-// necesita DATABASE_URL para generar el cliente: sin ella falla con un error
-// poco descriptivo antes de llegar a tocar la base de datos.
-if (!process.env.DATABASE_URL) {
-  // Se listan los NOMBRES de las variables relacionadas que si existen (nunca
-  // sus valores): asi el log dice por si solo si el proveedor las inyecto con
-  // otro nombre o si sencillamente no hay ninguna.
-  const related = Object.keys(process.env)
-    .filter((name) => /^(DATABASE|POSTGRES|PG|NEON|AUTH|ANTHROPIC)/i.test(name))
-    .sort();
-
-  console.error("\n" + "=".repeat(60));
-  console.error("  ✖ Falta la variable DATABASE_URL");
-  console.error("=".repeat(60));
-
-  if (related.length === 0) {
-    console.error("  El despliegue no ve NINGUNA variable de base de datos.");
-    console.error("  La base de datos no esta conectada a este proyecto.");
-  } else {
-    console.error("  Variables relacionadas que si llegan al build:");
-    for (const name of related) console.error(`    · ${name}`);
-    console.error("");
-    console.error("  Si ves ahi una cadena de Postgres con otro nombre,");
-    console.error("  copia su valor a una variable llamada DATABASE_URL.");
-  }
-
-  console.error("");
-  console.error("  Como resolverlo: Vercel -> Settings -> Environment Variables");
-  console.error("  Anade DATABASE_URL y marca Production, Preview y Development.");
-  console.error("  Despues hay que volver a desplegar: las variables se leen");
-  console.error("  durante el build, no despues.");
-  console.error("");
-  console.error("  Guia completa: DEPLOY.md\n");
-  process.exit(1);
-}
 
 const root = process.cwd();
 const source = path.join(root, "prisma", "schema.prisma");
