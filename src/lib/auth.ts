@@ -5,13 +5,13 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 
 const COOKIE_NAME = "viajero_session";
-const MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // 7 dias
+const MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // 7 días
 
 function secretKey(): Uint8Array {
   const secret = process.env.AUTH_SECRET;
   if (!secret || secret.length < 16) {
     throw new Error(
-      "Falta AUTH_SECRET en el archivo .env (minimo 16 caracteres). Copia .env.example a .env."
+      "Falta AUTH_SECRET en el archivo .env (mínimo 16 caracteres). Copia .env.example a .env."
     );
   }
   return new TextEncoder().encode(secret);
@@ -63,7 +63,7 @@ export async function getSession(): Promise<SessionPayload | null> {
   }
 }
 
-/** Sesion valida + usuario existente en BD. Lanza si no hay sesion. */
+/** Sesión valida + usuario existente en BD. Lanza si no hay sesión. */
 export async function requireUser() {
   const session = await getSession();
   if (!session) throw new UnauthorizedError();

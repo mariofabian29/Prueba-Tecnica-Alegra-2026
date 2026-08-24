@@ -10,9 +10,9 @@ import { cn } from "@/lib/format";
 export type SidebarSection = "trips" | "budget" | "assistant" | "profile" | "notifications" | "settings";
 
 /**
- * Navegacion lateral del area privada.
- * "Mis viajes" y "Presupuesto" navegan; el resto son secciones del diseno que
- * todavia no tienen pantalla, asi que se muestran sin comportamiento.
+ * Navegación lateral del area privada.
+ * "Mis viajes" y "Presupuesto" navegan; el resto son secciones del diseño que
+ * todavia no tienen pantalla, así que se muestran sin comportamiento.
  */
 export function Sidebar({
   userName,
@@ -82,7 +82,7 @@ export function Sidebar({
                 key={item.key}
                 className={classes}
                 aria-current={isActive ? "page" : undefined}
-                title={!item.href ? "Seccion del diseno todavia no implementada" : undefined}
+                title={!item.href ? "Sección del diseño todavia no implementada" : undefined}
               >
                 {item.label}
               </span>
@@ -98,7 +98,7 @@ export function Sidebar({
         className="flex items-center gap-3 rounded-pill px-1 py-1 text-[14px] text-ink-500 transition-colors hover:text-brand-600 disabled:opacity-50"
       >
         <Avatar name={userName} size="sm" />
-        {loggingOut ? "Cerrando..." : "Cerrar sesion"}
+        {loggingOut ? "Cerrando..." : "Cerrar sesión"}
       </button>
     </aside>
   );

@@ -79,7 +79,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error ?? "No pudimos completar la operacion");
+        setError(data.error ?? "No pudimos completar la operación");
         setFields(data.fields ?? {});
         return;
       }
@@ -88,7 +88,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       router.replace(next && next.startsWith("/") ? next : "/viajes");
       router.refresh();
     } catch {
-      setError("No pudimos conectar con el servidor. Revisa tu conexion.");
+      setError("No pudimos conectar con el servidor. Revisa tu conexión.");
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   return (
     <div className="w-full max-w-[560px] animate-fade-up rounded-[20px] border border-cream-300 bg-cream-50 px-8 py-10 sm:px-14">
       <h1 className="text-center text-[22px] font-bold tracking-tight text-ink-900">
-        {isRegister ? "Crea tu cuenta para empezar" : "Inicia sesion para ver esta pagina"}
+        {isRegister ? "Crea tu cuenta para empezar" : "Inicia sesión para ver esta pagina"}
       </h1>
 
       {/* ------------------------------ Accesos sociales ----------------------- */}
@@ -108,13 +108,13 @@ export function AuthForm({ mode }: { mode: Mode }) {
             type="button"
             onClick={() =>
               setNotice(
-                `El acceso con ${provider.label} no esta habilitado en esta version. Usa tu correo y contrasena.`
+                `El acceso con ${provider.label} no está habilitado en esta versión. Usa tu correo y contraseña.`
               )
             }
             className="mx-auto flex w-full max-w-[290px] items-center justify-center gap-2.5 rounded-pill border border-brand-200 bg-white px-6 py-2.5 text-[13.5px] font-bold text-ink-900 transition-colors hover:border-brand-400 hover:bg-brand-50"
           >
             {provider.icon}
-            {isRegister ? "Registrate" : "Inicia sesion"} con {provider.label}
+            {isRegister ? "Regístrate" : "Inicia sesión"} con {provider.label}
           </button>
         ))}
       </div>
@@ -156,8 +156,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
             name="email"
             type="email"
             autoComplete="email"
-            placeholder="Correo electronico"
-            aria-label="Correo electronico"
+            placeholder="Correo electrónico"
+            aria-label="Correo electrónico"
             value={values.email}
             onChange={set("email")}
             required
@@ -171,8 +171,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
             name="password"
             type="password"
             autoComplete={isRegister ? "new-password" : "current-password"}
-            placeholder="Contrasena"
-            aria-label="Contrasena"
+            placeholder="Contraseña"
+            aria-label="Contraseña"
             value={values.password}
             onChange={set("password")}
             required
@@ -187,36 +187,36 @@ export function AuthForm({ mode }: { mode: Mode }) {
               type="button"
               onClick={() =>
                 setNotice(
-                  "La recuperacion de contrasena requiere un servicio de correo y no esta habilitada en esta version."
+                  "La recuperación de contraseña requiere un servicio de correo y no está habilitada en esta versión."
                 )
               }
               className="text-[12.5px] font-bold text-ink-500 underline underline-offset-2 transition-colors hover:text-brand-600"
             >
-              ¿Olvidaste tu contrasena?
+              ¿Olvidaste tu contraseña?
             </button>
           </p>
         )}
 
         <div className="flex justify-center pt-2">
           <Button type="submit" size="lg" loading={loading} className="min-w-[160px]">
-            {isRegister ? "Registrate" : "Inicia sesion"}
+            {isRegister ? "Regístrate" : "Inicia sesión"}
           </Button>
         </div>
       </form>
 
       <p className="mt-5 text-center text-[13.5px] text-ink-700">
-        {isRegister ? "¿Ya tienes una cuenta? " : "¿Aun no tienes una cuenta? "}
+        {isRegister ? "¿Ya tienes una cuenta? " : "¿Aún no tienes una cuenta? "}
         <Link
           href={isRegister ? "/login" : "/registro"}
           className="font-semibold text-brand-600 hover:text-brand-700"
         >
-          {isRegister ? "Inicia sesion" : "Registrate"}
+          {isRegister ? "Inicia sesión" : "Regístrate"}
         </Link>
       </p>
 
       {!isRegister && (
         <p className="mt-5 rounded-[14px] bg-cream-200 px-4 py-3 text-center text-[12.5px] text-ink-500">
-          Cuenta de demostracion: <span className="font-semibold text-ink-800">demo@tripflow.app</span> /{" "}
+          Cuenta de demostración: <span className="font-semibold text-ink-800">demo@tripflow.app</span> /{" "}
           <span className="font-semibold text-ink-800">demo1234</span>
         </p>
       )}

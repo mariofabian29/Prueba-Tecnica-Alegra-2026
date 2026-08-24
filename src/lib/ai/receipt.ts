@@ -31,7 +31,7 @@ Reglas:
 - "date" es la fecha impresa en el recibo. Si no se ve, usa la fecha de hoy que te indican.
 - "confidence" es "low" si la imagen no es un recibo o no logras leer el total.
 
-Categorias validas: ${CATEGORIES.join(", ")}`;
+Categorías validas: ${CATEGORIES.join(", ")}`;
 
 /**
  * Lee un recibo con Claude. Si no hay API key o la lectura falla, devuelve un

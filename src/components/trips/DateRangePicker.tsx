@@ -10,11 +10,11 @@ type Props = {
   start: string;
   end: string;
   onChange: (range: { start: string; end: string }) => void;
-  /** No se pueden elegir dias anteriores a este (por defecto, hoy). */
+  /** No se pueden elegir días anteriores a este (por defecto, hoy). */
   min?: Date;
 };
 
-/** Calendario de rango en espanol, con la semana empezando en lunes. */
+/** Calendario de rango en español, con la semana empezando en lunes. */
 export function DateRangePicker({ start, end, onChange, min }: Props) {
   const today = startOfDay(new Date());
   const minDay = startOfDay(min ?? today);
@@ -23,7 +23,11 @@ export function DateRangePicker({ start, end, onChange, min }: Props) {
     return new Date(base.getFullYear(), base.getMonth(), 1);
   });
 
-  const monthLabel = new Intl.DateTimeFormat("es-CO", { month: "long", year: "numeric" }).format(cursor);
+  // "agosto 2026" en vez de "agosto de 2026"
+  const monthLabel = [
+    new Intl.DateTimeFormat("es-CO", { month: "long" }).format(cursor),
+    cursor.getFullYear(),
+  ].join(" ");
   const year = cursor.getFullYear();
   const month = cursor.getMonth();
 

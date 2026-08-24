@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     template: "%s · Tripflow",
   },
   description:
-    "Crea tu viaje, registra gastos a mano o contandoselos a la IA, y mira en tiempo real como va tu presupuesto con graficas y recomendaciones.",
+    "Crea tu viaje, registra gastos a mano o contandoselos a la IA, y mira en tiempo real como va tu presupuesto con gráficas y recomendaciones.",
 };
 
 export const viewport: Viewport = {

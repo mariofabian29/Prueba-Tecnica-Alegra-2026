@@ -5,12 +5,12 @@ import { CURRENCIES } from "@/lib/format";
 export const registerSchema = z.object({
   name: z.string().trim().min(2, "El nombre debe tener al menos 2 caracteres").max(60),
   email: z.string().trim().toLowerCase().email("Correo invalido"),
-  password: z.string().min(6, "La contrasena debe tener al menos 6 caracteres").max(100),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres").max(100),
 });
 
 export const loginSchema = z.object({
   email: z.string().trim().toLowerCase().email("Correo invalido"),
-  password: z.string().min(1, "Ingresa tu contrasena"),
+  password: z.string().min(1, "Ingresa tu contraseña"),
 });
 
 export const tripSchema = z
@@ -22,7 +22,7 @@ export const tripSchema = z
     startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha de inicio invalida"),
     endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha de fin invalida"),
     // Las fechas son opcionales en el formulario: si faltan, la API rellena una
-    // ventana por defecto de 7 dias desde hoy antes de validar.
+    // ventana por defecto de 7 días desde hoy antes de validar.
     notes: z.string().trim().max(500).optional().or(z.literal("")),
     coverEmoji: z.string().trim().max(8).optional().or(z.literal("")),
     companions: z

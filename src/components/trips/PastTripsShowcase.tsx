@@ -1,14 +1,14 @@
 import { destinationArt } from "@/lib/destination-art";
 
 /**
- * Vitrina de viajes pasados incluida en el diseno.
+ * Vitrina de viajes pasados incluida en el diseño.
  * Es puramente ilustrativa: el producto ignora los viajes que ya terminaron,
- * asi que esta seccion no navega ni consulta datos reales.
+ * así que esta sección no navega ni consulta datos reales.
  */
 const PAST_TRIPS = [
   { destination: "Cartagena", range: "1 – 5 ago." },
   { destination: "Madrid", range: "10 – 29 jul." },
-  { destination: "Bogota", range: "12 – 16 ene." },
+  { destination: "Bogotá", range: "12 – 16 ene." },
 ];
 
 export function PastTripsShowcase() {

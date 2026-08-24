@@ -7,13 +7,13 @@ import { Avatar } from "./Avatar";
 
 /**
  * Barra superior con gradiente de marca.
- * Los enlaces "Guias" y "Hoteles" son parte del diseno pero aun no tienen
- * pantalla propia, asi que se muestran sin comportamiento.
+ * Los enlaces "Guías" y "Hoteles" son parte del diseño pero aún no tienen
+ * pantalla propia, así que se muestran sin comportamiento.
  */
 export function TopNav({
   userName,
   searchPlaceholder = "Introduce lugar",
-  links = ["Inicio", "Guias", "Hoteles"],
+  links = ["Inicio", "Guías", "Hoteles"],
 }: {
   userName: string;
   searchPlaceholder?: string;
@@ -42,7 +42,7 @@ export function TopNav({
                 <span
                   key={link}
                   className="cursor-default text-[14px] font-semibold text-white/70"
-                  title="Seccion del diseno todavia no implementada"
+                  title="Sección del diseño todavia no implementada"
                 >
                   {link}
                 </span>

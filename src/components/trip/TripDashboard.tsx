@@ -18,13 +18,14 @@ import { AnalysisModal } from "./AnalysisModal";
 import { SpendTrend } from "./SpendTrend";
 
 type Props = {
+  userName: string;
   initialTrip: TripDTO;
   initialAnalytics: TripAnalytics;
-  /** Abre el popup de gasto nada mas entrar (?nuevo=1). */
+  /** Abre el popup de gasto nada más entrar (?nuevo=1). */
   openExpenseOnMount?: boolean;
 };
 
-export function TripDashboard({ initialTrip, initialAnalytics, openExpenseOnMount }: Props) {
+export function TripDashboard({ userName, initialTrip, initialAnalytics, openExpenseOnMount }: Props) {
   const router = useRouter();
   const { trip, analytics } = useTrip(initialTrip.id, {
     trip: initialTrip,
@@ -82,7 +83,7 @@ export function TripDashboard({ initialTrip, initialAnalytics, openExpenseOnMoun
           <div className="flex items-center gap-2">
             <Button onClick={() => setExpenseOpen(true)} size="lg">
               <Plus className="h-4 w-4" aria-hidden />
-              Anadir gasto
+              Añadir gasto
             </Button>
             <Button
               variant="ghost"
@@ -116,7 +117,7 @@ export function TripDashboard({ initialTrip, initialAnalytics, openExpenseOnMoun
         </div>
       </div>
 
-      {/* ------------------------------ Analisis IA ----------------------------- */}
+      {/* ------------------------------ Análisis IA ----------------------------- */}
       <AiRail a={a} insights={insights} loading={isLoading} onOpenAnalysis={() => setAnalysisOpen(true)} />
 
       <AddExpenseModal
@@ -126,6 +127,7 @@ export function TripDashboard({ initialTrip, initialAnalytics, openExpenseOnMoun
         currency={t.currency}
         people={people}
         companionCount={t.companions.length}
+        userName={userName}
       />
 
       <AnalysisModal

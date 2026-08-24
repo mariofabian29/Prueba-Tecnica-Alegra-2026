@@ -9,7 +9,7 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.findUnique({ where: { email: body.email } });
     if (!user || !(await verifyPassword(body.password, user.passwordHash))) {
-      return fail("Correo o contrasena incorrectos", 401);
+      return fail("Correo o contraseña incorrectos", 401);
     }
 
     await createSession({ userId: user.id, email: user.email, name: user.name });

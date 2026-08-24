@@ -18,7 +18,7 @@ const EXTENSIONS: Record<string, string> = {
 
 /**
  * Sube la foto de un recibo, la guarda en /public/uploads y pide a la IA que
- * extraiga monto, categoria y fecha. Devuelve un borrador para confirmar.
+ * extraiga monto, categoría y fecha. Devuelve un borrador para confirmar.
  */
 export async function POST(request: Request, { params }: Params) {
   return handle(async () => {
@@ -59,7 +59,7 @@ export async function POST(request: Request, { params }: Params) {
     });
 
     const message = draft.extracted
-      ? "Confirma la informacion y la cargo automaticamente"
+      ? "Confirma la información y la cargo automaticamente"
       : "No pude leer el total del recibo. Escribeme el monto y lo registro con esta foto.";
 
     const assistantMessage = await prisma.chatMessage.create({

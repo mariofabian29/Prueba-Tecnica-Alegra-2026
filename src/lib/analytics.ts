@@ -79,7 +79,7 @@ export type TripAnalytics = {
   safeDailyBudget: number;
   /** Presupuesto diario planificado (budget / totalDays). */
   plannedDailyBudget: number;
-  /** Proyeccion de gasto total al ritmo actual. */
+  /** Proyección de gasto total al ritmo actual. */
   projectedTotal: number;
   projectedOverrun: number;
   /** Diferencia entre lo gastado y lo que "deberia" llevar gastado hoy. */
@@ -90,7 +90,7 @@ export type TripAnalytics = {
   byBucket: BucketBreakdown[];
   topCategory: CategoryBreakdown | null;
   topBucket: BucketBreakdown | null;
-  /** Proyeccion expresada como porcentaje del presupuesto. */
+  /** Proyección expresada como porcentaje del presupuesto. */
   projectedPct: number;
   daily: DailyPoint[];
   byPerson: PersonBreakdown[];
@@ -128,7 +128,7 @@ export function computeAnalytics(
   const remaining = round2(trip.budget - totalSpent);
   const usedPct = trip.budget > 0 ? (totalSpent / trip.budget) * 100 : 0;
 
-  // ---- Desglose por categoria ----
+  // ---- Desglose por categoría ----
   const byCategory: CategoryBreakdown[] = CATEGORIES.map((category) => {
     const items = expenses.filter((e) => e.category === category);
     const total = round2(items.reduce((acc, e) => acc + e.amount, 0));
@@ -186,7 +186,7 @@ export function computeAnalytics(
     });
   }
 
-  // ---- Ritmo y proyecciones ----
+  // ---- Ritmo y proyecciónes ----
   const avgPerDay = elapsedDays > 0 ? round2(totalSpent / elapsedDays) : 0;
   const plannedDailyBudget = round2(trip.budget / totalDays);
   const safeDailyBudget = remainingDays > 0 ? round2(Math.max(0, remaining) / remainingDays) : 0;

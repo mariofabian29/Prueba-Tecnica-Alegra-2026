@@ -23,7 +23,7 @@ export function CategoryDonut({ a }: { a: TripAnalytics }) {
 
   return (
     <section className="rounded-[18px] bg-cream-200 p-6">
-      <h3 className="text-[13px] font-semibold text-ink-500">Gasto por categoria</h3>
+      <h3 className="text-[13px] font-semibold text-ink-500">Gasto por categoría</h3>
 
       <div className="relative mx-auto mt-4 h-[190px] w-[190px]">
         <ResponsiveContainer width="100%" height="100%">

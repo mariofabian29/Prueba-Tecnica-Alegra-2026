@@ -15,13 +15,24 @@ type Props = {
   onClose: () => void;
   tripId: string;
   currency: string;
+  /** Primer elemento siempre "Yo"; el resto son los acompanantes. */
   people: string[];
   companionCount: number;
+  /** Nombre de la persona con sesion iniciada, para la etiqueta "Tu (...)". */
+  userName: string;
 };
 
 type Step = "form" | "category";
 
-export function AddExpenseModal({ open, onClose, tripId, currency, people, companionCount }: Props) {
+export function AddExpenseModal({
+  open,
+  onClose,
+  tripId,
+  currency,
+  people,
+  companionCount,
+  userName,
+}: Props) {
   const [step, setStep] = useState<Step>("form");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState<Category | null>(null);
@@ -92,7 +103,7 @@ export function AddExpenseModal({ open, onClose, tripId, currency, people, compa
       return;
     }
     if (!category) {
-      setError("Selecciona una categoria de gasto.");
+      setError("Selecciona una categoría de gasto.");
       return;
     }
 
@@ -146,7 +157,7 @@ export function AddExpenseModal({ open, onClose, tripId, currency, people, compa
         <form onSubmit={save}>
           <header className="relative mb-6 flex items-center justify-center">
             <h2 id="expense-modal-title" className="text-[19px] font-bold tracking-tight text-ink-900">
-              Anadir gasto
+              Añadir gasto
             </h2>
             <button
               type="button"
@@ -178,7 +189,7 @@ export function AddExpenseModal({ open, onClose, tripId, currency, people, compa
             className="mt-3 flex w-full items-center justify-between rounded-[14px] bg-cream-200 px-4 py-3.5 text-left text-[15px] transition-colors hover:bg-cream-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
           >
             <span className={category ? "font-medium text-ink-900" : "text-ink-400"}>
-              {category ? `${CATEGORY_META[category].emoji} ${CATEGORY_META[category].label}` : "Categoria de gasto"}
+              {category ? `${CATEGORY_META[category].emoji} ${CATEGORY_META[category].label}` : "Categoría de gasto"}
               {category && place && <span className="ml-1.5 font-normal text-ink-500">· {place}</span>}
             </span>
             <ChevronDown className="h-4 w-4 shrink-0 text-ink-400" aria-hidden />
@@ -191,7 +202,7 @@ export function AddExpenseModal({ open, onClose, tripId, currency, people, compa
               onChange={setPaidBy}
               options={people.map((p) => ({
                 value: p,
-                label: p === "Yo" ? `Tu (${people[0] === "Yo" ? "Yo" : p})` : p,
+                label: p === "Yo" ? `Tú (${userName})` : p,
               }))}
             />
 
@@ -210,23 +221,27 @@ export function AddExpenseModal({ open, onClose, tripId, currency, people, compa
                 },
               ]}
               disabled={companionCount === 0}
-              hint={companionCount === 0 ? "Este viaje no tiene acompanantes" : undefined}
+              hint={companionCount === 0 ? "Este viaje no tiene acompañantes" : undefined}
             />
 
             <div className="flex items-center justify-between gap-4">
               <label htmlFor="expense-date" className="text-[13.5px] font-semibold text-ink-500">
                 Fecha: Opcional
               </label>
-              <div className="flex items-center gap-2">
+              {/* El input nativo se superpone invisible para conservar el
+                  selector del sistema sin mostrar su texto parcial. */}
+              <div className="relative flex items-center gap-1.5">
                 <span className="text-[14px] text-ink-700">
                   {date ? formatDate(`${date}T12:00:00`, { day: "2-digit", month: "short" }) : "Hoy"}
                 </span>
+                <ChevronDown className="h-3.5 w-3.5 text-ink-400" aria-hidden />
                 <input
                   id="expense-date"
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-[38px] cursor-pointer rounded-lg border-0 bg-transparent text-[14px] text-ink-500 outline-none focus:text-brand-600"
+                  aria-label="Fecha del gasto"
+                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                 />
               </div>
             </div>

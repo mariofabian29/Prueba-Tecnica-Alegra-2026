@@ -4,12 +4,12 @@ import { FooterBar } from "@/components/shell/FooterBar";
 import { HeroPreview, AssistantPreview, PhonePreview } from "./Previews";
 
 const FEATURES = [
-  { title: "Crea tu viaje", detail: "Destino, fechas y presupuesto: asi de simple." },
-  { title: "Seguimiento de gastos", detail: "Mira cuanto llevas gastado y cuanto te queda por categoria." },
-  { title: "Asistente de IA", detail: "Cuentale que gastaste y lo anota por ti." },
-  { title: "Por categorias", detail: "Alojamiento, comida, transporte y mas." },
+  { title: "Crea tu viaje", detail: "Destino, fechas y presupuesto: así de simple." },
+  { title: "Seguimiento de gastos", detail: "Mira cuánto llevas gastado y cuánto te queda por categoría." },
+  { title: "Asistente de IA", detail: "Cuéntale qué gastaste y lo anota por ti." },
+  { title: "Por categorías", detail: "Alojamiento, comida, transporte y más." },
   { title: "Sube el recibo", detail: "Sube una foto del recibo, sin escribir montos." },
-  { title: "Proyeccion", detail: "Anticipate y evita superar tu presupuesto." },
+  { title: "Proyección", detail: "Anticípate y evita superar tu presupuesto." },
 ];
 
 const FOOTER_LINKS = [
@@ -41,7 +41,7 @@ export function Landing({ authenticated }: { authenticated: boolean }) {
               Controla el gasto de tu viaje con ayuda de IA
             </h1>
             <p className="mx-auto mt-4 max-w-[440px] text-center text-[15.5px] leading-relaxed text-ink-700">
-              Cuentale a la IA que gastaste y ella registra el monto, la categoria y la fecha por ti.
+              Cuéntale a la IA qué gastaste y ella registra el monto, la categoría y la fecha por ti.
             </p>
 
             <div className="mt-8 flex justify-center">
@@ -80,12 +80,12 @@ export function Landing({ authenticated }: { authenticated: boolean }) {
           </div>
         </section>
 
-        {/* --------------------------------- Unete ------------------------------- */}
-        <section id="unete" className="bg-cream-50 px-6 py-16">
+        {/* --------------------------------- Únete ------------------------------- */}
+        <section id="únete" className="bg-cream-50 px-6 py-16">
           <div className="mx-auto grid max-w-[1180px] items-center gap-12 lg:grid-cols-[280px_1fr]">
             <PhonePreview />
             <div>
-              <h2 className="text-[27px] font-bold tracking-tight text-ink-900">Unete a Tripflow</h2>
+              <h2 className="text-[27px] font-bold tracking-tight text-ink-900">Únete a Tripflow</h2>
               <p className="mt-2.5 max-w-[400px] text-[15px] leading-relaxed text-ink-700">
                 Registra tus gastos, controla tu presupuesto y viaja tranquilo, todo en una sola app.
               </p>

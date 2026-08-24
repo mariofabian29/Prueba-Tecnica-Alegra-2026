@@ -96,13 +96,13 @@ export function NewTripForm() {
 
       {/* -------------------------------- Destino ------------------------------- */}
       <label htmlFor="destination" className="mb-1.5 block text-[13px] font-semibold text-brand-700">
-        ¿A donde?
+        ¿A dónde?
       </label>
       <input
         id="destination"
         value={destination}
         onChange={(e) => setDestination(e.target.value)}
-        placeholder="p. ej. Paris, Hawai, Japon"
+        placeholder="p. ej. París, Hawái, Japón"
         maxLength={80}
         required
         className="input-base"
@@ -179,7 +179,7 @@ export function NewTripForm() {
       </div>
       {fields.budget && <p className="mt-1 text-[12.5px] text-alert-500">{fields.budget}</p>}
 
-      {/* ---------------------------- Acompanantes ------------------------------ */}
+      {/* ---------------------------- Acompañantes ------------------------------ */}
       <div className="mt-4 flex items-center justify-between gap-3">
         <button
           type="button"
@@ -187,11 +187,11 @@ export function NewTripForm() {
           className="flex items-center gap-1 text-[14px] text-ink-800 transition-colors hover:text-brand-600"
         >
           <Plus className="h-3.5 w-3.5" aria-hidden />
-          Invita a companeros de viaje
+          Invita a compañeros de viaje
         </button>
         <span
           className="flex cursor-default items-center gap-1 text-[13.5px] font-semibold text-brand-700"
-          title="La libreta de amigos hace parte del diseno y aun no esta implementada"
+          title="La libreta de amigos hace parte del diseño y aún no esta implementada"
         >
           Amigos
           <ChevronDown className="h-3 w-3" aria-hidden />
@@ -210,7 +210,7 @@ export function NewTripForm() {
                   )
                 }
                 placeholder="Nombre"
-                aria-label={`Nombre del acompanante ${index + 1}`}
+                aria-label={`Nombre del acompañante ${index + 1}`}
                 className="input-base !py-2.5"
               />
               <input
@@ -222,13 +222,13 @@ export function NewTripForm() {
                 }
                 type="email"
                 placeholder="Correo (opcional)"
-                aria-label={`Correo del acompanante ${index + 1}`}
+                aria-label={`Correo del acompañante ${index + 1}`}
                 className="input-base !py-2.5"
               />
               <button
                 type="button"
                 onClick={() => setCompanions((list) => list.filter((c) => c.key !== companion.key))}
-                aria-label={`Quitar acompanante ${index + 1}`}
+                aria-label={`Quitar acompañante ${index + 1}`}
                 className="shrink-0 rounded-lg p-2 text-ink-400 transition-colors hover:text-alert-500"
               >
                 <X className="h-4 w-4" aria-hidden />
@@ -247,9 +247,9 @@ export function NewTripForm() {
 
       <p
         className="mt-4 cursor-default text-center text-[14px] text-ink-500"
-        title="Las guias de viaje hacen parte del diseno y aun no estan implementadas"
+        title="Las guías de viaje hacen parte del diseño y aún no están implementadas"
       >
-        O escribe una nueva guia
+        O escribe una nueva guía
       </p>
     </form>
   );

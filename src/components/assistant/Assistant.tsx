@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { UploadCard } from "./UploadCard";
 import { DraftCard, type Draft } from "./DraftCard";
 
-const QUICK_REPLIES = ["Gaste en comida", "Pague el hotel", "Anota una compra"];
+const QUICK_REPLIES = ["Gasté en comida", "Pagué el hotel", "Anota una compra"];
 
 type Pending = { id: string; role: "user"; content: string };
 
@@ -213,7 +213,7 @@ function Welcome({ onPick, disabled }: { onPick: (text: string) => void; disable
       </span>
       <h2 className="text-[24px] font-bold tracking-tight text-ink-900">Asistente de IA</h2>
       <p className="mt-2 max-w-[380px] text-[14.5px] leading-relaxed text-ink-700">
-        Cuentame que gastaste y lo registro por ti — monto, categoria y fecha, automaticamente.
+        Cuéntame qué gastaste y lo registro por ti — monto, categoría y fecha, automáticamente.
       </p>
 
       <div className="mt-6 flex flex-wrap justify-center gap-3">

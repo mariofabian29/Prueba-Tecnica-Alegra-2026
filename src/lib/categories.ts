@@ -1,6 +1,6 @@
 /**
  * Taxonomia de gasto de Tripflow.
- * 12 categorias de captura que se agrupan en 4 "buckets" para el resumen del
+ * 12 categorías de captura que se agrupan en 4 "buckets" para el resumen del
  * dashboard (Alojamiento, Comida, Actividades, Transporte y otros).
  */
 
@@ -59,7 +59,7 @@ export const CATEGORY_META: Record<Category, CategoryMeta> = {
     ],
   },
   CAR_RENTAL: {
-    label: "Alquiler coches",
+    label: "Alquiler de coches",
     emoji: "🚗",
     color: "#7b4b94",
     bucket: "TRANSPORT_OTHER",

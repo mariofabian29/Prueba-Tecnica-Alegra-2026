@@ -20,7 +20,7 @@ export function LandingNav({ authenticated }: { authenticated: boolean }) {
             {LINKS.map((link) => (
               <a
                 key={link}
-                href={link === "Inicio" ? "#inicio" : link === "Presupuesto" ? "#funciones" : "#unete"}
+                href={link === "Inicio" ? "#inicio" : link === "Presupuesto" ? "#funciones" : "#únete"}
                 className="text-[14px] font-semibold text-white/95 transition-opacity hover:opacity-80"
               >
                 {link}
@@ -59,13 +59,13 @@ export function LandingNav({ authenticated }: { authenticated: boolean }) {
                 href="/login"
                 className="hidden text-[13.5px] font-semibold text-white/95 transition-opacity hover:opacity-80 sm:block"
               >
-                Inicia sesion
+                Inicia sesión
               </Link>
               <Link
                 href="/registro"
                 className="rounded-pill bg-white px-6 py-2.5 text-[14px] font-bold text-brand-600 transition-transform hover:scale-[1.02]"
               >
-                Registrate
+                Regístrate
               </Link>
             </>
           )}

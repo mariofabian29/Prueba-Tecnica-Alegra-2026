@@ -33,7 +33,7 @@ CONTEXTO DEL VIAJE (usa estas cifras, no inventes otras):
 - Dia ${a.elapsedDays} de ${a.totalDays}, quedan ${a.daysLeft} dias
 - Puede gastar ${formatMoney(a.safeDailyBudget, a.currency)} por dia con lo que le queda
 - Promedio real: ${formatMoney(a.avgPerDay, a.currency)}/dia
-- Por categoria: ${a.byCategory.map((c) => `${c.label} ${formatMoney(c.total, a.currency)}`).join(", ") || "sin gastos aun"}
+- Por categoría: ${a.byCategory.map((c) => `${c.label} ${formatMoney(c.total, a.currency)}`).join(", ") || "sin gastos aun"}
 - Fecha de hoy: ${today}
 - Personas que pueden pagar: ${people.join(", ")}
 
@@ -49,7 +49,7 @@ Responde SIEMPRE con un unico objeto JSON valido, sin texto alrededor:
 {"intent":"answer","reply":"respuesta directa con cifras reales, max 3 frases"}
 
 3) Si pide subir/cargar una factura, recibo o foto:
-{"intent":"upload_receipt","reply":"Toca para abrir la camara o elegir tu foto de la galeria."}
+{"intent":"upload_receipt","reply":"Toca para abrir la cámara o elegir tu foto de la galería."}
 
 4) Si falta el monto o no se entiende:
 {"intent":"clarify","reply":"pregunta concreta por lo que falta, ej: ¿Que comida fue? ¿Cuanto te costo?"}
@@ -288,7 +288,7 @@ export function localChatbot(
     return {
       intent: "upload_receipt",
       engine: "local",
-      reply: "Toca para abrir la camara o elegir tu foto de la galeria.",
+      reply: "Toca para abrir la cámara o elegir tu foto de la galería.",
     };
   }
 
@@ -297,7 +297,7 @@ export function localChatbot(
     return {
       intent: "answer",
       engine: "local",
-      reply: `Hola. Soy tu asistente de gastos del viaje a ${trip.destination}. Dime cuanto gastaste (por ejemplo "gaste 32 en el almuerzo") y lo registro, o preguntame como va tu presupuesto.`,
+      reply: `Hola. Soy tu asistente de gastos del viaje a ${trip.destination}. Dime cuánto gastaste (por ejemplo "gasté 32 en el almuerzo") y lo registro, o pregúntame cómo va tu presupuesto.`,
     };
   }
 
@@ -306,10 +306,10 @@ export function localChatbot(
     if (/recomend|consejo|que hago|qué hago/.test(t)) {
       const advice =
         a.remaining < 0
-          ? `Ya superaste el presupuesto en ${m(Math.abs(a.remaining))}. Para los ${a.daysLeft} dias que faltan, limita el gasto a lo esencial: comida de mercado y transporte publico.`
+          ? `Ya superaste el presupuesto en ${m(Math.abs(a.remaining))}. Para los ${a.daysLeft} días que faltan, limita el gasto a lo esencial: comida de mercado y transporte público.`
           : a.projectedOverrun > 0
-            ? `Al ritmo de ${m(a.avgPerDay)}/dia te pasarias por ${m(a.projectedOverrun)}. Bajar a ${m(a.safeDailyBudget)} diarios te deja justo en el presupuesto.`
-            : `Vas bien: puedes gastar hasta ${m(a.safeDailyBudget)} por dia durante los ${a.daysLeft} dias que quedan.`;
+            ? `Al ritmo de ${m(a.avgPerDay)}/día te pasarías por ${m(a.projectedOverrun)}. Bajar a ${m(a.safeDailyBudget)} diarios te deja justo en el presupuesto.`
+            : `Vas bien: puedes gastar hasta ${m(a.safeDailyBudget)} por día durante los ${a.daysLeft} días que quedan.`;
       const top = a.topCategory ? ` Tu mayor gasto es ${a.topCategory.label} con ${m(a.topCategory.total)} (${a.topCategory.share.toFixed(0)}%).` : "";
       return { intent: "answer", engine: "local", reply: advice + top };
     }
@@ -320,16 +320,16 @@ export function localChatbot(
         reply:
           a.remaining < 0
             ? `Ya no te queda presupuesto: vas ${m(Math.abs(a.remaining))} por encima de los ${m(a.budget)} previstos. Cada gasto nuevo aumenta el sobrecosto.`
-            : `Te quedan ${m(a.remaining)} de ${m(a.budget)}. Para los ${a.daysLeft} dias restantes son ${m(a.safeDailyBudget)} por dia.`,
+            : `Te quedan ${m(a.remaining)} de ${m(a.budget)}. Para los ${a.daysLeft} días restantes son ${m(a.safeDailyBudget)} por día.`,
       };
     }
     return {
       intent: "answer",
       engine: "local",
       reply:
-        `Llevas ${m(a.totalSpent)} gastados (${a.usedPct.toFixed(0)}% del presupuesto) en ${a.expenseCount} registros, con un promedio de ${m(a.avgPerDay)} por dia. ` +
+        `Llevas ${m(a.totalSpent)} gastados (${a.usedPct.toFixed(0)}% del presupuesto) en ${a.expenseCount} registros, con un promedio de ${m(a.avgPerDay)} por día. ` +
         (a.remaining < 0
-          ? `Estas ${m(Math.abs(a.remaining))} por encima del limite.`
+          ? `Estás ${m(Math.abs(a.remaining))} por encima del límite.`
           : `Te quedan ${m(a.remaining)}.`),
     };
   }
@@ -354,19 +354,19 @@ export function localChatbot(
     return {
       intent: "add_expense",
       engine: "local",
-      reply: `Listo, registre ${m(expense.amount)} en ${CATEGORY_META[category].label.toLowerCase()} (${expense.description}). ${tail}`,
+      reply: `Listo, registré ${m(expense.amount)} en ${CATEGORY_META[category].label.toLowerCase()} (${expense.description}). ${tail}`,
       expense,
     };
   }
 
-  // Menciono una categoria pero no un monto: pedimos el dato que falta.
+  // Menciono una categoría pero no un monto: pedimos el dato que falta.
   const hinted = guessCategory(message);
   if (hinted !== "OTHER") {
     const label = CATEGORY_META[hinted].label.toLowerCase();
     return {
       intent: "clarify",
       engine: "local",
-      reply: `¿Que ${label} fue? ¿Cuanto te costo?`,
+      reply: `¿Qué ${label} fue? ¿Cuánto te costó?`,
     };
   }
 
@@ -374,6 +374,6 @@ export function localChatbot(
     intent: "clarify",
     engine: "local",
     reply:
-      'No detecte un monto en tu mensaje. Escribeme algo como "gaste 45 en el almuerzo", o toca "Quiero cargar la factura" para subir una foto del recibo.',
+      'No detecté un monto en tu mensaje. Escríbeme algo como "gasté 45 en el almuerzo", o toca "Quiero cargar la factura" para subir una foto del recibo.',
   };
 }

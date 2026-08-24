@@ -1,10 +1,30 @@
 export const CURRENCIES = ["USD", "EUR", "COP", "MXN", "ARS", "BRL", "CLP", "PEN", "GBP"] as const;
 export type Currency = (typeof CURRENCIES)[number];
 
+/**
+ * Locale por divisa para que Intl imprima el simbolo correcto (€, $, £)
+ * en lugar del codigo ISO.
+ */
+const CURRENCY_LOCALE: Record<string, string> = {
+  USD: "en-US",
+  EUR: "es-ES",
+  GBP: "en-GB",
+  COP: "es-CO",
+  MXN: "es-MX",
+  ARS: "es-AR",
+  BRL: "pt-BR",
+  CLP: "es-CL",
+  PEN: "es-PE",
+};
+
+function localeFor(currency: string): string {
+  return CURRENCY_LOCALE[currency] ?? "es-CO";
+}
+
 export function formatMoney(amount: number, currency = "USD"): string {
   const fractionDigits = ["COP", "CLP", "ARS"].includes(currency) ? 0 : 2;
   try {
-    return new Intl.NumberFormat("es-CO", {
+    return new Intl.NumberFormat(localeFor(currency), {
       style: "currency",
       currency,
       minimumFractionDigits: fractionDigits,
@@ -17,7 +37,7 @@ export function formatMoney(amount: number, currency = "USD"): string {
 
 export function formatCompact(amount: number, currency = "USD"): string {
   try {
-    return new Intl.NumberFormat("es-CO", {
+    return new Intl.NumberFormat(localeFor(currency), {
       style: "currency",
       currency,
       notation: "compact",

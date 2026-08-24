@@ -5,7 +5,7 @@ import { ArrowLeft, X } from "lucide-react";
 import { CATEGORY_META, CATEGORY_PICKER_ORDER, type Category } from "@/lib/categories";
 
 /**
- * Segundo paso del popup: elegir un lugar del plan de viaje o una categoria.
+ * Segundo paso del popup: elegir un lugar del plan de viaje o una categoría.
  */
 export function CategoryPicker({
   place,
@@ -32,7 +32,7 @@ export function CategoryPicker({
           <ArrowLeft className="h-5 w-5" aria-hidden />
         </button>
         <h2 id="expense-modal-title" className="text-[19px] font-bold tracking-tight text-ink-900">
-          Selecciona categoria de gasto
+          Selecciona categoría de gasto
         </h2>
         <button
           type="button"
@@ -58,7 +58,7 @@ export function CategoryPicker({
 
       <hr className="my-5 border-cream-300" />
 
-      <p className="mb-3 text-[13px] font-semibold text-ink-500">O selecciona una categoria</p>
+      <p className="mb-3 text-[13px] font-semibold text-ink-500">O selecciona una categoría</p>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {CATEGORY_PICKER_ORDER.map((category) => {

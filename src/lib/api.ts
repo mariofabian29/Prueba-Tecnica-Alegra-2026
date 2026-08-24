@@ -15,7 +15,7 @@ export function fail(message: string, status = 400, fields?: Record<string, stri
 /** Envuelve un route handler traduciendo excepciones conocidas a respuestas HTTP. */
 export function handle(fn: () => Promise<Response>): Promise<Response> {
   return fn().catch((error: unknown) => {
-    if (error instanceof UnauthorizedError) return fail("Debes iniciar sesion", 401);
+    if (error instanceof UnauthorizedError) return fail("Debes iniciar sesión", 401);
     if (error instanceof ZodError) return fail("Revisa los datos del formulario", 422, zodErrors(error));
     console.error("[api]", error);
     return fail("Ocurrio un error inesperado en el servidor", 500);

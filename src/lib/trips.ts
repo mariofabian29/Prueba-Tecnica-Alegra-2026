@@ -12,7 +12,7 @@ export class NotFoundError extends Error {
 
 /**
  * Viajes vigentes del usuario: en curso o futuros.
- * Los viajes cuya fecha de fin ya paso se ignoran por diseno del producto.
+ * Los viajes cuya fecha de fin ya paso se ignoran por diseño del producto.
  */
 export async function listActiveTrips(userId: string) {
   const today = startOfDay(new Date());

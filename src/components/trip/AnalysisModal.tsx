@@ -15,7 +15,7 @@ const TONES: Record<Insight["tone"], { box: string; icon: string; Icon: typeof L
   danger: { box: "border-alert-500/25 bg-alert-500/[0.07]", icon: "text-alert-600", Icon: ShieldAlert },
 };
 
-/** Analisis completo del viaje: se abre desde "Ver analisis" del panel lateral. */
+/** Análisis completo del viaje: se abre desde "Ver análisis" del panel lateral. */
 export function AnalysisModal({
   open,
   onClose,
@@ -37,7 +37,7 @@ export function AnalysisModal({
     <Modal open={open} onClose={onClose} labelledBy="analysis-title" className="max-w-[600px]">
       <header className="relative mb-5 flex items-center justify-center">
         <h2 id="analysis-title" className="text-[19px] font-bold tracking-tight text-ink-900">
-          Analisis de tu viaje
+          Análisis de tu viaje
         </h2>
         <button
           type="button"
@@ -62,8 +62,8 @@ export function AnalysisModal({
 
           <dl className="grid grid-cols-2 gap-3">
             <Metric label="Promedio diario" value={formatMoney(a.avgPerDay, a.currency)} />
-            <Metric label="Puedes gastar por dia" value={formatMoney(a.safeDailyBudget, a.currency)} />
-            <Metric label="Proyeccion del viaje" value={formatMoney(a.projectedTotal, a.currency)} />
+            <Metric label="Puedes gastar por día" value={formatMoney(a.safeDailyBudget, a.currency)} />
+            <Metric label="Proyección del viaje" value={formatMoney(a.projectedTotal, a.currency)} />
             <Metric
               label={a.projectedOverrun > 0 ? "Sobrecosto proyectado" : "Margen proyectado"}
               value={formatMoney(
@@ -100,7 +100,7 @@ export function AnalysisModal({
               <Sparkles className="h-3 w-3" aria-hidden />
               {insights.engine === "claude"
                 ? "Generado por Claude"
-                : "Generado por el motor de analisis local"}
+                : "Generado por el motor de análisis local"}
             </p>
             <Button variant="outline" size="sm" onClick={onRefresh} loading={refreshing}>
               <RefreshCw className="h-3.5 w-3.5" aria-hidden />
@@ -110,7 +110,7 @@ export function AnalysisModal({
         </div>
       ) : (
         <p className="py-6 text-center text-[14px] text-ink-500">
-          No pudimos generar el analisis. Intenta de nuevo en unos segundos.
+          No pudimos generar el análisis. Intenta de nuevo en unos segundos.
         </p>
       )}
     </Modal>

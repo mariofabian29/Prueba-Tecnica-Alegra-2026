@@ -4,7 +4,7 @@ import { Logo } from "./Logo";
 import { FooterBar } from "./FooterBar";
 import { Sidebar, type SidebarSection } from "./Sidebar";
 
-/** Layout con barra de marca, navegacion lateral y franja inferior. */
+/** Layout con barra de marca, navegación lateral y franja inferior. */
 export function AppShell({
   userName,
   active,

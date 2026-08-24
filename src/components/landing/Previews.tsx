@@ -51,14 +51,14 @@ export function AssistantPreview() {
 
       <div className="space-y-3">
         <p className="max-w-[80%] rounded-[14px] bg-cream-50 px-4 py-3 text-[13.5px] leading-relaxed text-ink-900">
-          ¡Hola! Cuentame que gastaste y lo registro por ti.
+          ¡Hola! Cuéntame qué gastaste y lo registro por ti.
         </p>
         <p className="ml-auto max-w-[70%] rounded-[14px] brand-gradient px-4 py-3 text-right text-[13.5px] text-white">
-          Gaste 164.000 en una comida
+          Gasté 164.000 en una comida
         </p>
         <div className="max-w-[85%] rounded-[14px] border border-brand-300 bg-cream-50 px-4 py-3.5">
           <p className="text-[11.5px] font-semibold text-brand-600">
-            Confirma la informacion y la cargo automaticamente
+            Confirma la información y la cargo automáticamente
           </p>
           <dl className="mt-2.5 space-y-1.5 text-[13px]">
             <div className="flex justify-between">
@@ -66,7 +66,7 @@ export function AssistantPreview() {
               <dd className="font-bold text-ink-900">$164.000</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-ink-700">Categoria</dt>
+              <dt className="text-ink-700">Categoría</dt>
               <dd className="text-ink-900">🍴 Comida</dd>
             </div>
             <div className="flex justify-between">
@@ -96,7 +96,7 @@ export function PhonePreview() {
 
         <ul className="mt-3 space-y-2">
           {[
-            { emoji: "✈️", title: "Vuelo Bogota", amount: "300.000" },
+            { emoji: "✈️", title: "Vuelo Bogotá", amount: "300.000" },
             { emoji: "🍴", title: "Chuzales", amount: "164.000" },
           ].map((item) => (
             <li

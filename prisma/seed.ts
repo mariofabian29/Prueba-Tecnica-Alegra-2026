@@ -53,15 +53,15 @@ async function main() {
       startDate: dayOffset(-2),
       endDate: dayOffset(2),
       coverEmoji: "🇨🇴",
-      notes: "Cinco dias por la ciudad amurallada, Bocagrande y las islas.",
-      companions: { create: [{ name: "Laura Gomez", email: "laura@example.com" }] },
+      notes: "Cinco días por la ciudad amurallada, Bocagrande y las islas.",
+      companions: { create: [{ name: "Laura Gómez", email: "laura@example.com" }] },
     },
   });
 
   const cartagenaExpenses: ExpenseRow[] = [
-    [2, 300_000, "FLIGHTS", "Vuelo Bogota - Cartagena", "Mario Fabian", "MANUAL"],
+    [2, 300_000, "FLIGHTS", "Vuelo Bogotá – Cartagena", "Mario Fabian", "MANUAL"],
     [1, 164_000, "FOOD", "Comida en Chuzales Cartagena", "Mario Fabian", "CHATBOT"],
-    [1, 45_000, "TRANSPORT", "Taxi del aeropuerto al centro", "Laura Gomez", "MANUAL"],
+    [1, 45_000, "TRANSPORT", "Taxi del aeropuerto al centro", "Laura Gómez", "MANUAL"],
     [0, 38_000, "DRINKS", "Limonada de coco en la muralla", "Mario Fabian", "CHATBOT"],
   ];
 
@@ -80,8 +80,8 @@ async function main() {
 
   await prisma.chatMessage.createMany({
     data: [
-      { tripId: cartagena.id, role: "user", content: "Gaste en una comida", kind: "text" },
-      { tripId: cartagena.id, role: "assistant", content: "¿Que comida fue? ¿Cuanto te costo?", kind: "text" },
+      { tripId: cartagena.id, role: "user", content: "Gasté en una comida", kind: "text" },
+      { tripId: cartagena.id, role: "assistant", content: "¿Qué comida fue? ¿Cuánto te costó?", kind: "text" },
       {
         tripId: cartagena.id,
         role: "user",
@@ -92,7 +92,7 @@ async function main() {
         tripId: cartagena.id,
         role: "assistant",
         content:
-          "Listo, registre $ 164.000 en comida (Comida en Chuzales Cartagena). Te quedan $ 1.491.000 de tu presupuesto.",
+          "Listo, registré $ 164.000 en comida (Comida en Chuzales Cartagena). Te quedan $ 1.491.000 de tu presupuesto.",
         kind: "text",
       },
     ],
@@ -112,11 +112,11 @@ async function main() {
       startDate: dayOffset(21),
       endDate: dayOffset(32),
       coverEmoji: "🇵🇹",
-      notes: "Doce dias recorriendo Lisboa, Sintra y Cascais.",
+      notes: "Doce días recorriendo Lisboa, Sintra y Cascais.",
       companions: {
         create: [
           { name: "Carlos Rivera", email: "carlos@example.com" },
-          { name: "Sofia Nunez", email: "sofia@example.com" },
+          { name: "Sofía Núñez", email: "sofia@example.com" },
         ],
       },
     },

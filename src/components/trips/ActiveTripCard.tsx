@@ -42,7 +42,7 @@ export function ActiveTripCard({ trip }: { trip: ActiveTrip }) {
             notStarted ? "bg-white/90 text-brand-700" : "bg-brand-600/90 text-white"
           )}
         >
-          {notStarted ? (daysToStart <= 1 ? "Manana" : `En ${daysToStart} dias`) : "En curso"}
+          {notStarted ? (daysToStart <= 1 ? "Mañana" : `En ${daysToStart} días`) : "En curso"}
         </span>
       </div>
 

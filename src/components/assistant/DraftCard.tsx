@@ -15,7 +15,7 @@ export type Draft = {
 
 /**
  * Tarjeta de confirmacion del gasto leido del recibo.
- * Permite editar monto, categoria y fecha antes de cargarlo.
+ * Permite editar monto, categoría y fecha antes de cargarlo.
  */
 export function DraftCard({
   draft,
@@ -53,7 +53,7 @@ export function DraftCard({
   return (
     <div className="max-w-[560px] rounded-[6px] border border-brand-300 bg-white px-6 py-5">
       <p className="mb-4 text-[13px] font-semibold text-brand-600">
-        Confirma la informacion y la cargo automaticamente
+        Confirma la información y la cargo automáticamente
       </p>
 
       {editing ? (
@@ -69,21 +69,21 @@ export function DraftCard({
             />
           </Row>
 
-          <Row label="Descripcion">
+          <Row label="Descripción">
             <input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               maxLength={120}
-              aria-label="Descripcion del gasto"
+              aria-label="Descripción del gasto"
               className="w-56 rounded-lg bg-cream-200 px-3 py-1.5 text-right text-[14px] text-ink-900 outline-none focus:ring-2 focus:ring-brand-300"
             />
           </Row>
 
-          <Row label="Categoria">
+          <Row label="Categoría">
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as Category)}
-              aria-label="Categoria del gasto"
+              aria-label="Categoría del gasto"
               className="cursor-pointer rounded-lg bg-cream-200 px-3 py-1.5 text-[14px] text-ink-900 outline-none focus:ring-2 focus:ring-brand-300"
             >
               {CATEGORY_PICKER_ORDER.map((key) => (
@@ -111,7 +111,7 @@ export function DraftCard({
               {formatMoney(Number(amount), currency)}
             </span>
           </Row>
-          <Row label="Categoria">
+          <Row label="Categoría">
             <span className="text-[14px] text-ink-800">
               {meta.emoji} {meta.label}
             </span>

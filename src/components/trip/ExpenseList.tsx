@@ -10,8 +10,8 @@ import { formatDate, formatMoney, cn } from "@/lib/format";
 type Order = "date_desc" | "date_asc" | "amount_desc";
 
 const ORDER_LABEL: Record<Order, string> = {
-  date_desc: "fecha (mas reciente)",
-  date_asc: "fecha (mas antigua)",
+  date_desc: "fecha (más reciente)",
+  date_asc: "fecha (más antigua)",
   amount_desc: "monto (mayor primero)",
 };
 
@@ -48,7 +48,7 @@ export function ExpenseList({
   }
 
   if (expenses.length === 0) {
-    return <p className="text-[14px] text-ink-500">Aun no has anadido ningun gasto.</p>;
+    return <p className="text-[14px] text-ink-500">Aún no has añadido ningún gasto.</p>;
   }
 
   return (

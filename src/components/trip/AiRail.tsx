@@ -12,7 +12,7 @@ const DOT: Record<TripAnalytics["health"], string> = {
   over_budget: "bg-alert-500",
 };
 
-/** Panel lateral de analisis, siempre visible junto al presupuesto. */
+/** Panel lateral de análisis, siempre visible junto al presupuesto. */
 export function AiRail({
   a,
   insights,
@@ -29,7 +29,7 @@ export function AiRail({
 
   return (
     <aside className="w-full shrink-0 bg-cream-100 px-7 py-7 xl:w-[400px]">
-      <p className="text-[12px] font-semibold text-ink-400">Analisis de tu viaje · IA</p>
+      <p className="text-[12px] font-semibold text-ink-400">Análisis de tu viaje · IA</p>
 
       <h2 className="mt-3 flex items-center gap-2.5 text-[17px] font-bold tracking-tight text-ink-900">
         <span className={cn("h-3 w-3 rounded-full", DOT[a.health])} aria-hidden />
@@ -41,7 +41,7 @@ export function AiRail({
       </h2>
 
       <dl className="mt-4 space-y-2">
-        <Row label="Proyeccion de gasto" value={formatMoney(a.projectedTotal, a.currency)} />
+        <Row label="Proyección de gasto" value={formatMoney(a.projectedTotal, a.currency)} />
         <Row label="Presupuesto total" value={formatMoney(a.budget, a.currency)} />
       </dl>
 
@@ -60,11 +60,11 @@ export function AiRail({
             />
           </div>
           <p className="mt-2 text-[11.5px] font-medium text-ink-400">
-            Proyeccion: {a.projectedPct.toFixed(0)}% del presupuesto
+            Proyección: {a.projectedPct.toFixed(0)}% del presupuesto
           </p>
         </>
       ) : (
-        <p className="mt-3 text-[11.5px] font-medium text-ink-400">Aun no hay gastos para proyectar</p>
+        <p className="mt-3 text-[11.5px] font-medium text-ink-400">Aún no hay gastos para proyectar</p>
       )}
 
       <hr className="my-6 border-cream-300" />
@@ -115,13 +115,13 @@ export function AiRail({
           {loading && !insights
             ? "Analizando tus gastos..."
             : (insights?.narrative ??
-              "Aun no hay suficientes datos — registra gastos y te avisaremos si algo se desvia del plan.")}
+              "Aún no hay suficientes datos — registra gastos y te avisaremos si algo se desvia del plan.")}
         </p>
       </div>
 
       <div className="mt-7 flex justify-center">
         <Button onClick={onOpenAnalysis} size="lg">
-          Ver analisis
+          Ver análisis
           <ArrowRight className="h-4 w-4" aria-hidden />
         </Button>
       </div>

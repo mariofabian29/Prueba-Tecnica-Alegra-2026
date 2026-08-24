@@ -5,7 +5,7 @@ import { LandingNav } from "@/components/landing/LandingNav";
 import { FooterBar } from "@/components/shell/FooterBar";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Inicia sesion" };
+export const metadata = { title: "Inicia sesión" };
 
 export default async function LoginPage() {
   const session = await getSession();

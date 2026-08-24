@@ -22,7 +22,7 @@ export function TripsHome({ userName, trips }: { userName: string; trips: Active
       <div className="px-8 py-8 sm:px-12 sm:py-10">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <h1 className="text-[28px] font-bold tracking-tight text-ink-900">
-            Vistos recientemente y proximos
+            Vistos recientemente y próximos
           </h1>
           <Link href="/nuevo-viaje">
             <Button size="lg">
@@ -34,7 +34,7 @@ export function TripsHome({ userName, trips }: { userName: string; trips: Active
 
         {trips.length === 0 ? (
           <p className="mt-5 text-[15px] text-ink-700">
-            Aun no has creado nada.{" "}
+            Aún no has creado nada.{" "}
             <Link href="/nuevo-viaje" className="font-bold text-ink-900 underline underline-offset-2">
               Planifica un nuevo viaje
             </Link>

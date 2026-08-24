@@ -15,8 +15,8 @@ import type { DailyPoint, TripAnalytics } from "@/lib/analytics";
 import { formatCompact, formatMoney } from "@/lib/format";
 
 /**
- * Evolucion del gasto acumulado frente al ritmo planificado.
- * Complementa el anillo por categoria: muestra si el desvio crece o se corrige.
+ * Evolución del gasto acumulado frente al ritmo planificado.
+ * Complementa el anillo por categoría: muestra si el desvio crece o se corrige.
  */
 export function SpendTrend({ a }: { a: TripAnalytics }) {
   const series = a.daily.map((d) => ({ ...d, cumulative: d.isFuture ? null : d.cumulative }));
@@ -25,9 +25,9 @@ export function SpendTrend({ a }: { a: TripAnalytics }) {
     <section className="rounded-[18px] bg-cream-200 p-6">
       <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-[13px] font-semibold text-ink-500">Evolucion del gasto</h3>
+          <h3 className="text-[13px] font-semibold text-ink-500">Evolución del gasto</h3>
           <p className="mt-0.5 text-[12px] text-ink-400">
-            Acumulado real frente al ritmo planificado de {formatMoney(a.plannedDailyBudget, a.currency)} por dia
+            Acumulado real frente al ritmo planificado de {formatMoney(a.plannedDailyBudget, a.currency)} por día
           </p>
         </div>
         <div className="flex items-center gap-3 text-[11.5px] text-ink-500">
@@ -90,7 +90,7 @@ export function SpendTrend({ a }: { a: TripAnalytics }) {
                 return (
                   <div className="rounded-xl border border-cream-300 bg-white px-3 py-2 shadow-lg">
                     <p className="mb-1 text-[12px] font-semibold text-ink-900">{String(label)}</p>
-                    <Row name="Gasto del dia" value={formatMoney(point.spent, a.currency)} />
+                    <Row name="Gasto del día" value={formatMoney(point.spent, a.currency)} />
                     <Row name="Acumulado" value={formatMoney(point.cumulative, a.currency)} />
                     <Row name="Plan" value={formatMoney(point.idealCumulative, a.currency)} />
                   </div>
