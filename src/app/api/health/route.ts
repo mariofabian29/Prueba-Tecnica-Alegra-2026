@@ -68,7 +68,12 @@ export async function GET() {
     return NextResponse.json({ estado: "correcto", checks });
   } catch (error) {
     checks.tablas = "no accesibles";
-    checks.error = (error as Error).message.split("\n")[0];
+    // Prisma deja el detalle en distintos sitios segun el tipo de fallo.
+    const e = error as { name?: string; code?: string; message?: string };
+    checks.error =
+      [e.code, (e.message ?? "").split("\n").find((l) => l.trim())?.trim(), e.name]
+        .filter(Boolean)
+        .join(" · ") || "sin detalle";
     checks.queHacer = [
       "La cadena de conexion existe pero la base no responde o no tiene tablas.",
       "Vuelve a desplegar para que el build las cree, o revisa que la cadena",
