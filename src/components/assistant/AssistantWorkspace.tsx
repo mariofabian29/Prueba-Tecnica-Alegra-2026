@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/shell/AppShell";
 import { Assistant } from "./Assistant";
 
@@ -15,15 +14,8 @@ export function AssistantWorkspace({
   destination: string;
   currency: string;
 }) {
-  const router = useRouter();
-
   return (
-    <AppShell
-      userName={userName}
-      active="assistant"
-      budgetHref={`/viajes/${tripId}`}
-      onAssistant={() => router.refresh()}
-    >
+    <AppShell userName={userName} active="assistant" activeTripId={tripId}>
       <Assistant tripId={tripId} destination={destination} currency={currency} />
     </AppShell>
   );

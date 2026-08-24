@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Send, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Send, Sparkles, X } from "lucide-react";
 import { useChat, revalidateTrip, type ChatMessageDTO } from "@/hooks/useTrip";
 import { cn } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
@@ -135,9 +136,31 @@ export function Assistant({
 
   return (
     <div className="flex h-[calc(100vh-72px-48px)] min-h-[560px] flex-col bg-cream-50">
-      <header className="flex items-center justify-between gap-4 px-8 pt-6">
-        <h1 className="text-[22px] font-bold tracking-tight text-ink-900">Asistente de IA</h1>
-        <span className="text-[12.5px] font-medium text-ink-400">Viaje a {destination}</span>
+      <header className="px-8 pt-6">
+        <Link
+          href={`/viajes/${tripId}`}
+          className="inline-flex items-center gap-1.5 text-[13px] font-medium text-ink-500 transition-colors hover:text-brand-600"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden />
+          Volver al viaje
+        </Link>
+
+        <div className="mt-2 flex items-center justify-between gap-4">
+          <h1 className="text-[22px] font-bold tracking-tight text-ink-900">Asistente de IA</h1>
+          <div className="flex items-center gap-3">
+            <span className="hidden text-[12.5px] font-medium text-ink-400 sm:inline">
+              Viaje a {destination}
+            </span>
+            <Link
+              href={`/viajes/${tripId}`}
+              aria-label="Cerrar el asistente y volver al viaje"
+              title="Cerrar el asistente"
+              className="rounded-full p-2 text-ink-500 transition-colors hover:bg-cream-200 hover:text-ink-900"
+            >
+              <X className="h-5 w-5" aria-hidden />
+            </Link>
+          </div>
+        </div>
       </header>
 
       <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto px-8 py-6">
