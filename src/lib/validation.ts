@@ -2,20 +2,18 @@ import { z } from "zod";
 import { CATEGORIES } from "@/lib/categories";
 import { CURRENCIES } from "@/lib/format";
 
-export const registerSchema = z
-  .object({
-    name: z.string().trim().min(2, "El nombre debe tener al menos 2 caracteres").max(60),
-    email: z.string().trim().toLowerCase().email("Correo inválido"),
-    password: z
-      .string()
-      .min(8, "La contraseña debe tener al menos 8 caracteres")
-      .max(100, "La contraseña no puede superar los 100 caracteres"),
-    confirmPassword: z.string().optional(),
-  })
-  .refine((d) => !d.confirmPassword || d.confirmPassword === d.password, {
-    message: "Las contraseñas no coinciden",
-    path: ["confirmPassword"],
-  });
+/** Longitud mínima de contraseña, compartida por el cliente y el servidor. */
+export const PASSWORD_MIN_LENGTH = 8;
+
+/** Registro básico: nombre, correo y contraseña. */
+export const registerSchema = z.object({
+  name: z.string().trim().min(2, "El nombre debe tener al menos 2 caracteres").max(60),
+  email: z.string().trim().toLowerCase().email("Correo inválido"),
+  password: z
+    .string()
+    .min(PASSWORD_MIN_LENGTH, `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres`)
+    .max(100, "La contraseña no puede superar los 100 caracteres"),
+});
 
 export const loginSchema = z.object({
   email: z.string().trim().toLowerCase().email("Correo inválido"),

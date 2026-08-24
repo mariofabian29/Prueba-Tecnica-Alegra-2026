@@ -85,11 +85,18 @@ Registro e inicio de sesión con correo y contraseña. Las sesiones son JWT
 firmados guardados en una cookie `httpOnly`, y un middleware protege las rutas
 privadas.
 
-El registro valida en el cliente antes de llamar al servidor (nombre, formato
-del correo, requisitos de la contraseña y que la confirmación coincida), muestra
-un medidor de robustez en vivo y marca en rojo el campo que falla. Los errores
-del servidor —como un correo ya registrado— se muestran sobre el formulario, y
-mientras se crea la cuenta se ve la pantalla de carga de la marca.
+El acceso se reparte en dos pantallas conectadas entre sí:
+
+| Pantalla | Campos |
+| --- | --- |
+| `/login` | Correo y contraseña |
+| `/registro` | Nombre, correo y contraseña |
+
+Ambas validan en el cliente antes de llamar al servidor y marcan en rojo el
+campo que falla, que se limpia al corregirlo. Los errores del servidor —correo
+ya registrado, credenciales incorrectas— se muestran sobre el formulario, y
+mientras se crea la cuenta o se inicia sesión se ve la pantalla de carga de la
+marca.
 
 Cada ruta tiene además su pantalla de carga (`loading.tsx`) y su límite de error
 (`error.tsx`) con opción de reintentar, más un `global-error` autónomo por si

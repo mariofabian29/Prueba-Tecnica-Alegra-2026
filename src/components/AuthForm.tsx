@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Check, Eye, EyeOff, X } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
 import { Loader } from "@/components/ui/Loader";
-import { checkPassword, passwordStrength } from "@/lib/password";
+import { PASSWORD_MIN_LENGTH } from "@/lib/validation";
 import { cn } from "@/lib/format";
 
 type Mode = "login" | "register";
@@ -52,19 +52,12 @@ const SOCIAL = [
   },
 ];
 
-const STRENGTH = [
-  { label: "", color: "" },
-  { label: "Débil", color: "bg-alert-500" },
-  { label: "Aceptable", color: "bg-warn-500" },
-  { label: "Sólida", color: "bg-ok-500" },
-] as const;
-
 export function AuthForm({ mode }: { mode: Mode }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isRegister = mode === "register";
 
-  const [values, setValues] = useState({ name: "", email: "", password: "", confirmPassword: "" });
+  const [values, setValues] = useState({ name: "", email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [fields, setFields] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
@@ -77,9 +70,6 @@ export function AuthForm({ mode }: { mode: Mode }) {
     setFields((f) => (f[key] ? { ...f, [key]: "" } : f));
   };
 
-  const checks = checkPassword(values.password);
-  const strength = passwordStrength(values.password);
-
   function validateLocally(): boolean {
     const next: Record<string, string> = {};
 
@@ -91,11 +81,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
     }
     if (!values.password) {
       next.password = "Escribe tu contraseña";
-    } else if (isRegister && checks.some((c) => !c.met)) {
-      next.password = "La contraseña no cumple los requisitos";
-    }
-    if (isRegister && values.confirmPassword !== values.password) {
-      next.confirmPassword = "Las contraseñas no coinciden";
+    } else if (isRegister && values.password.length < PASSWORD_MIN_LENGTH) {
+      next.password = `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres`;
     }
 
     setFields(next);
@@ -112,19 +99,14 @@ export function AuthForm({ mode }: { mode: Mode }) {
     setStatus("sending");
 
     try {
+      const payload = isRegister
+        ? { name: values.name.trim(), email: values.email.trim(), password: values.password }
+        : { email: values.email.trim(), password: values.password };
+
       const response = await fetch(`/api/auth/${isRegister ? "register" : "login"}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          isRegister
-            ? {
-                name: values.name.trim(),
-                email: values.email.trim(),
-                password: values.password,
-                confirmPassword: values.confirmPassword,
-              }
-            : { email: values.email.trim(), password: values.password }
-        ),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json().catch(() => ({}));
@@ -164,7 +146,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       </h1>
       {isRegister && (
         <p className="mt-2 text-center text-[14px] text-ink-700">
-          Solo necesitas un nombre, un correo y una contraseña.
+          Solo necesitas tu nombre, un correo y una contraseña.
         </p>
       )}
 
@@ -237,7 +219,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
           />
         </Field>
 
-        <Field id="password" error={fields.password}>
+        <Field
+          id="password"
+          error={fields.password}
+          hint={isRegister ? `Mínimo ${PASSWORD_MIN_LENGTH} caracteres` : undefined}
+        >
           <div className="relative">
             <input
               id="password"
@@ -262,56 +248,6 @@ export function AuthForm({ mode }: { mode: Mode }) {
             </button>
           </div>
         </Field>
-
-        {isRegister && values.password.length > 0 && (
-          <div className="rounded-[14px] bg-cream-200 px-4 py-3">
-            <div className="flex items-center gap-2">
-              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-cream-400">
-                <div
-                  className={cn("h-full rounded-full transition-all duration-300", STRENGTH[strength].color)}
-                  style={{ width: `${(strength / 3) * 100}%` }}
-                />
-              </div>
-              <span className="text-[12px] font-semibold text-ink-500">{STRENGTH[strength].label}</span>
-            </div>
-            <ul className="mt-2.5 space-y-1">
-              {checks.map((check) => (
-                <li
-                  key={check.label}
-                  className={cn(
-                    "flex items-center gap-1.5 text-[12.5px]",
-                    check.met ? "text-ok-600" : "text-ink-500"
-                  )}
-                >
-                  {check.met ? (
-                    <Check className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                  ) : (
-                    <X className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                  )}
-                  {check.label}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {isRegister && (
-          <Field id="confirmPassword" error={fields.confirmPassword}>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type={showPassword ? "text" : "password"}
-              autoComplete="new-password"
-              placeholder="Repite la contraseña"
-              aria-label="Repite la contraseña"
-              aria-invalid={Boolean(fields.confirmPassword)}
-              value={values.confirmPassword}
-              onChange={set("confirmPassword")}
-              disabled={busy}
-              className={inputClass(fields.confirmPassword)}
-            />
-          </Field>
-        )}
 
         {!isRegister && (
           <p className="text-center">
@@ -356,15 +292,27 @@ export function AuthForm({ mode }: { mode: Mode }) {
   );
 }
 
-function Field({ id, error, children }: { id: string; error?: string; children: React.ReactNode }) {
+function Field({
+  id,
+  error,
+  hint,
+  children,
+}: {
+  id: string;
+  error?: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
       {children}
-      {error && (
+      {error ? (
         <p id={`${id}-error`} role="alert" className="mt-1 text-[12.5px] text-alert-500">
           {error}
         </p>
-      )}
+      ) : hint ? (
+        <p className="mt-1 text-[12.5px] text-ink-400">{hint}</p>
+      ) : null}
     </div>
   );
 }
