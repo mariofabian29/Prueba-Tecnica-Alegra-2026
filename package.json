@@ -1,17 +1,18 @@
 {
-  "name": "viajero-control-gastos",
+  "name": "tripflow",
   "version": "1.0.0",
   "private": true,
   "description": "Plataforma de control de gastos de viaje con panel de IA y registro por chatbot",
   "scripts": {
+    "setup": "node scripts/setup.mjs",
     "dev": "next dev",
     "build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "lint": "next lint",
-    "setup": "prisma generate && prisma migrate dev --name init && npm run seed",
     "seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force && npm run seed",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "typecheck": "tsc --noEmit"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
