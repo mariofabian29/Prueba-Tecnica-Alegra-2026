@@ -4,12 +4,12 @@ import { CURRENCIES } from "@/lib/format";
 
 export const registerSchema = z.object({
   name: z.string().trim().min(2, "El nombre debe tener al menos 2 caracteres").max(60),
-  email: z.string().trim().toLowerCase().email("Correo invalido"),
+  email: z.string().trim().toLowerCase().email("Correo inválido"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres").max(100),
 });
 
 export const loginSchema = z.object({
-  email: z.string().trim().toLowerCase().email("Correo invalido"),
+  email: z.string().trim().toLowerCase().email("Correo inválido"),
   password: z.string().min(1, "Ingresa tu contraseña"),
 });
 
@@ -19,8 +19,8 @@ export const tripSchema = z
     country: z.string().trim().max(60).optional().or(z.literal("")),
     budget: z.coerce.number().positive("El presupuesto debe ser mayor a 0").max(100_000_000),
     currency: z.enum(CURRENCIES),
-    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha de inicio invalida"),
-    endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha de fin invalida"),
+    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha de inicio inválida"),
+    endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha de fin inválida"),
     // Las fechas son opcionales en el formulario: si faltan, la API rellena una
     // ventana por defecto de 7 días desde hoy antes de validar.
     notes: z.string().trim().max(500).optional().or(z.literal("")),
@@ -43,7 +43,7 @@ export const expenseSchema = z.object({
   amount: z.coerce.number().positive("El monto debe ser mayor a 0").max(100_000_000),
   category: z.enum(CATEGORIES),
   description: z.string().trim().min(1, "Describe el gasto").max(120),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha invalida"),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida"),
   paidBy: z.string().trim().min(1).max(60).default("Yo"),
   splitMode: z.enum(["NONE", "EQUAL"]).default("NONE"),
   place: z.string().trim().max(120).optional().or(z.literal("")),

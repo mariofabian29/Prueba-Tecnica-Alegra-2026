@@ -18,6 +18,6 @@ export function handle(fn: () => Promise<Response>): Promise<Response> {
     if (error instanceof UnauthorizedError) return fail("Debes iniciar sesión", 401);
     if (error instanceof ZodError) return fail("Revisa los datos del formulario", 422, zodErrors(error));
     console.error("[api]", error);
-    return fail("Ocurrio un error inesperado en el servidor", 500);
+    return fail("Ocurrió un error inesperado en el servidor", 500);
   });
 }

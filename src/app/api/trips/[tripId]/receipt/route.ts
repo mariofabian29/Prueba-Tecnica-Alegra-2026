@@ -30,9 +30,9 @@ export async function POST(request: Request, { params }: Params) {
 
     const form = await request.formData();
     const file = form.get("file");
-    if (!(file instanceof File)) return fail("No se recibio ninguna imagen", 400);
-    if (file.size === 0) return fail("La imagen esta vacia", 400);
-    if (file.size > MAX_BYTES) return fail("La imagen supera el limite de 8 MB", 413);
+    if (!(file instanceof File)) return fail("No se recibió ninguna imagen", 400);
+    if (file.size === 0) return fail("La imagen está vacía", 400);
+    if (file.size > MAX_BYTES) return fail("La imagen supera el límite de 8 MB", 413);
     if (!isSupportedMediaType(file.type)) {
       return fail("Formato no soportado. Usa JPG, PNG, WEBP o GIF.", 415);
     }
@@ -59,8 +59,8 @@ export async function POST(request: Request, { params }: Params) {
     });
 
     const message = draft.extracted
-      ? "Confirma la información y la cargo automaticamente"
-      : "No pude leer el total del recibo. Escribeme el monto y lo registro con esta foto.";
+      ? "Confirma la información y la cargo automáticamente"
+      : "No pude leer el total del recibo. Escríbeme el monto y lo registro con esta foto.";
 
     const assistantMessage = await prisma.chatMessage.create({
       data: {

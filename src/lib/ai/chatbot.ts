@@ -33,7 +33,7 @@ CONTEXTO DEL VIAJE (usa estas cifras, no inventes otras):
 - Dia ${a.elapsedDays} de ${a.totalDays}, quedan ${a.daysLeft} dias
 - Puede gastar ${formatMoney(a.safeDailyBudget, a.currency)} por dia con lo que le queda
 - Promedio real: ${formatMoney(a.avgPerDay, a.currency)}/dia
-- Por categoría: ${a.byCategory.map((c) => `${c.label} ${formatMoney(c.total, a.currency)}`).join(", ") || "sin gastos aun"}
+- Por categoría: ${a.byCategory.map((c) => `${c.label} ${formatMoney(c.total, a.currency)}`).join(", ") || "sin gastos aún"}
 - Fecha de hoy: ${today}
 - Personas que pueden pagar: ${people.join(", ")}
 

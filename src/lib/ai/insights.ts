@@ -118,7 +118,7 @@ function buildPrompt(trip: TripLike, a: TripAnalytics): string {
       .join("\n") || "  (aún sin gastos)";
 
   const statusLabel =
-    a.status === "NOT_STARTED" ? "aún no comienza" : a.status === "FINISHED" ? "ya termino" : "en curso";
+    a.status === "NOT_STARTED" ? "aún no comienza" : a.status === "FINISHED" ? "ya terminó" : "en curso";
 
   return `Datos del viaje:
 - Destino: ${trip.destination}${trip.country ? `, ${trip.country}` : ""}

@@ -97,7 +97,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   return (
     <div className="w-full max-w-[560px] animate-fade-up rounded-[20px] border border-cream-300 bg-cream-50 px-8 py-10 sm:px-14">
       <h1 className="text-center text-[22px] font-bold tracking-tight text-ink-900">
-        {isRegister ? "Crea tu cuenta para empezar" : "Inicia sesión para ver esta pagina"}
+        {isRegister ? "Crea tu cuenta para empezar" : "Inicia sesión para ver esta página"}
       </h1>
 
       {/* ------------------------------ Accesos sociales ----------------------- */}
