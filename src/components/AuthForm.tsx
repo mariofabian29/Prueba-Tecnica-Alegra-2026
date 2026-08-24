@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
 import { Loader } from "@/components/ui/Loader";
 import { PASSWORD_MIN_LENGTH } from "@/lib/validation";
+import { navigateWithFallback } from "@/lib/navigation";
 import { cn } from "@/lib/format";
 
 type Mode = "login" | "register";
@@ -119,10 +120,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
       }
 
       // Se mantiene la pantalla de carga hasta que el destino esté montado.
+      // No se llama a router.refresh(): al ejecutarse junto al replace cancela
+      // la navegación y la pantalla se queda cargando para siempre.
       setStatus("done");
       const next = searchParams.get("next");
-      router.replace(next && next.startsWith("/") ? next : "/viajes");
-      router.refresh();
+      navigateWithFallback(router.replace, next && next.startsWith("/") ? next : "/viajes");
     } catch {
       setError("No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.");
       setStatus("idle");

@@ -7,6 +7,8 @@ import { CURRENCIES, formatDate } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
 import { Loader } from "@/components/ui/Loader";
+import { navigateWithFallback } from "@/lib/navigation";
+import { revalidateTrips } from "@/hooks/useTrip";
 import { DateRangePicker } from "./DateRangePicker";
 
 type Companion = { key: string; name: string; email: string };
@@ -67,8 +69,9 @@ export function NewTripForm() {
         return;
       }
 
-      router.replace(`/viajes/${data.trip.id}`);
-      router.refresh();
+      // La navegación lateral debe incluir el viaje recién creado.
+      await revalidateTrips();
+      navigateWithFallback(router.replace, `/viajes/${data.trip.id}`);
     } catch {
       setError("No pudimos conectar con el servidor.");
       setCreating(false);
