@@ -15,10 +15,35 @@ import path from "node:path";
 // necesita DATABASE_URL para generar el cliente: sin ella falla con un error
 // poco descriptivo antes de llegar a tocar la base de datos.
 if (!process.env.DATABASE_URL) {
-  console.error("\n✖ Falta la variable DATABASE_URL.\n");
-  console.error("  La base de datos todavia no esta conectada al proyecto.");
-  console.error("  Sigue el paso 2 de DEPLOY.md (crear la base y conectarla),");
-  console.error("  o anade DATABASE_URL a mano en Settings -> Environment Variables.\n");
+  // Se listan los NOMBRES de las variables relacionadas que si existen (nunca
+  // sus valores): asi el log dice por si solo si el proveedor las inyecto con
+  // otro nombre o si sencillamente no hay ninguna.
+  const related = Object.keys(process.env)
+    .filter((name) => /^(DATABASE|POSTGRES|PG|NEON|AUTH|ANTHROPIC)/i.test(name))
+    .sort();
+
+  console.error("\n" + "=".repeat(60));
+  console.error("  ✖ Falta la variable DATABASE_URL");
+  console.error("=".repeat(60));
+
+  if (related.length === 0) {
+    console.error("  El despliegue no ve NINGUNA variable de base de datos.");
+    console.error("  La base de datos no esta conectada a este proyecto.");
+  } else {
+    console.error("  Variables relacionadas que si llegan al build:");
+    for (const name of related) console.error(`    · ${name}`);
+    console.error("");
+    console.error("  Si ves ahi una cadena de Postgres con otro nombre,");
+    console.error("  copia su valor a una variable llamada DATABASE_URL.");
+  }
+
+  console.error("");
+  console.error("  Como resolverlo: Vercel -> Settings -> Environment Variables");
+  console.error("  Anade DATABASE_URL y marca Production, Preview y Development.");
+  console.error("  Despues hay que volver a desplegar: las variables se leen");
+  console.error("  durante el build, no despues.");
+  console.error("");
+  console.error("  Guia completa: DEPLOY.md\n");
   process.exit(1);
 }
 

@@ -92,7 +92,7 @@ En **Settings → Environment Variables**, añade:
 | --- | --- | --- |
 | `AUTH_SECRET` | Una cadena aleatoria larga (mínimo 32 caracteres) | Sí |
 | `DATABASE_URL` | La cadena **pooled** de Neon (la pone sola si usaste la opción A) | Sí |
-| `DIRECT_DATABASE_URL` | La cadena **directa** de Neon (la del paso 2.B.4) | Solo si usaste la opción B |
+| `DIRECT_DATABASE_URL` | La cadena **directa** de Neon | No: si no está, se deduce sola quitando `-pooler` del host |
 | `ANTHROPIC_API_KEY` | Tu clave de Anthropic | No |
 | `ANTHROPIC_MODEL` | `claude-sonnet-5` | No |
 
@@ -148,7 +148,7 @@ servicio de almacenamiento aparte.
 
 | Síntoma | Causa habitual |
 | --- | --- |
-| El build para con **«Falta la variable DATABASE_URL»** | La base de datos no está conectada. Haz el paso 2 y vuelve a desplegar. |
+| El build para con **«No hay ninguna cadena de conexión»** | La base de datos no está conectada. El propio log lista qué variables sí llegan, para ver si el proveedor la publicó con otro nombre. |
 | El build falla con `P1001` (no alcanza el servidor) | La cadena de conexión es incorrecta o le falta `?sslmode=require`. |
 | Falla al crear las tablas y `DATABASE_URL` lleva `-pooler` | Falta `DIRECT_DATABASE_URL` con la cadena directa: los cambios de esquema no pueden ir por el pool. |
 | Avisos de `npm warn allow-scripts` | Son informativos. Los paquetes que de verdad necesitan sus scripts (Prisma, esbuild, sharp) están autorizados en `package.json`. |

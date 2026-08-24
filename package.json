@@ -21,7 +21,7 @@
     "db:studio": "prisma studio",
     "typecheck": "tsc --noEmit",
     "test": "tsx tests/photos.test.ts",
-    "build:deploy": "node scripts/prepare-postgres.mjs && prisma generate --schema prisma/schema.postgres.prisma && node scripts/db-deploy.mjs && next build"
+    "build:deploy": "node scripts/deploy.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",
