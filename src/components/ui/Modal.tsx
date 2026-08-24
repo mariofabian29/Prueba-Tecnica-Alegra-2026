@@ -3,7 +3,10 @@
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/format";
 
-/** Dialogo modal accesible: cierra con Escape o clic fuera, y atrapa el foco. */
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+/** Diálogo modal accesible: cierra con Escape o clic fuera, y atrapa el foco. */
 export function Modal({
   open,
   onClose,
@@ -19,6 +22,12 @@ export function Modal({
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
 
+  // El cierre vive en una ref para que el efecto dependa solo de `open`.
+  // Si dependiera de `onClose`, cada pulsación de tecla del formulario lo
+  // recrearía, el efecto se repetiría y el foco saltaría al primer botón.
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+
   useEffect(() => {
     if (!open) return;
 
@@ -28,14 +37,12 @@ export function Modal({
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        onClose();
+        closeRef.current();
         return;
       }
       if (event.key !== "Tab" || !panelRef.current) return;
 
-      const focusables = panelRef.current.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      );
+      const focusables = panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE);
       if (focusables.length === 0) return;
 
       const first = focusables[0];
@@ -50,14 +57,22 @@ export function Modal({
     }
 
     document.addEventListener("keydown", onKeyDown);
-    panelRef.current?.querySelector<HTMLElement>("input, button")?.focus();
+
+    // Preferimos el campo marcado con data-autofocus; si no hay, el primer
+    // campo de texto; y solo como último recurso, un botón.
+    const panel = panelRef.current;
+    const target =
+      panel?.querySelector<HTMLElement>("[data-autofocus]") ??
+      panel?.querySelector<HTMLElement>("input:not([type=hidden]):not([disabled]), textarea") ??
+      panel?.querySelector<HTMLElement>(FOCUSABLE);
+    target?.focus();
 
     return () => {
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = overflow;
       previouslyFocused?.focus();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
